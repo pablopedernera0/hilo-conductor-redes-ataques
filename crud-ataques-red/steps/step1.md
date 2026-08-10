@@ -15,16 +15,15 @@ Vas a ver una lista de puertos abiertos. `nmap` sin flags escanea los ~1000 puer
 El puerto solo no dice mucho. Pidámosle a `nmap` que identifique versiones de servicio:
 
 ```bash
-nmap -sV -p 80,8080,8888 localhost
+nmap -sV -p 8080,8888 localhost
 ```
 
 Deberías ver algo así:
 
 | Puerto | Servicio esperado |
 |--------|--------------------|
-| 80 | `nginx` |
-| 8080 | `nginx` (sirviendo PhpMyAdmin) |
-| 8888 | el servidor de desarrollo de Flask/Werkzeug |
+| 8080 | `Apache httpd` (el servidor que trae la imagen de PhpMyAdmin) |
+| 8888 | `Werkzeug`/Python — el servidor de desarrollo de Flask |
 
 ## 1.3 — ¿Y el puerto 3306 de MySQL?
 
@@ -32,10 +31,10 @@ Deberías ver algo así:
 nmap -p 3306 localhost
 ```
 
-Va a aparecer como `closed` o ni siquiera responder. Repasá el `docker-compose.yml`:
+Va a aparecer como `closed`. Repasá el `docker-compose.yml` (en la raíz del repo, un nivel arriba de esta carpeta):
 
 ```bash
-cat /root/crud-ataques-red/docker-compose.yml
+cat ../docker-compose.yml
 ```
 
 Fijate que el servicio `mysql` no tiene una sección `ports:` — nunca se publicó al host. Desde `localhost`, MySQL es invisible.

@@ -43,11 +43,58 @@ falta.
 - [x] Entorno y contenido de `crud-stress-test/` — armado, adaptado y probado end-to-end
       localmente (compose up, app bare, `ab` real, dev server vs. Gunicorn)
 - [x] Versión liviana de la Etapa 1 en `la-cajonera/crud-stress-test` (con `curl`)
-- [ ] Adaptar el contenido de `crud-ataques-red/steps/*.md` y `crud-sqli/steps/*.md`: hoy
-      están en formato Killercoda (asumen rutas como `/root/setup.sh`, el flujo de
-      "Traffic/Ports" para ver puertos, etc.) — hay que reescribirlos para "tu propia
-      terminal, contra `localhost`". Los comandos de `nmap`/`hydra`/`sqlmap` en sí mismos no
-      cambian. (`crud-stress-test/steps/` ya está adaptado, sirve de referencia.)
+- [~] **Adaptar `crud-ataques-red/steps/*.md` y `crud-sqli/steps/*.md` — EN PROGRESO,
+      arrancado el 2026-08-10, cortado a mitad de camino (Pablo sigue mañana desde otra
+      compu).** Estado real, no asumir que sigue en formato Killercoda intacto:
+
+      **Ya hecho:**
+      - `docker-compose up -d --build` desde la raíz **probado y funciona** — el pendiente
+        de "confirmar el build en una máquina normal" (más abajo) está resuelto, al menos en
+        esta máquina de desarrollo.
+      - `crud-ataques-red/intro.md` y `crud-ataques-red/steps/step1.md` ya reescritos y
+        probados contra el stack real.
+
+      **Hallazgos importantes que hay que tener en cuenta al seguir** (encontrados corriendo
+      todo en vivo, no leyendo el código nomás):
+      - El `docker-compose.yml` actual **no tiene servicio `web`/nginx**. Solo `mysql`,
+        `phpmyadmin`, `app`. El contenido original de Killercoda asumía un tercer contenedor
+        nginx en el puerto 80 — hay que sacar esas referencias, no agregarlas de vuelta.
+      - PhpMyAdmin corre sobre **Apache**, no nginx (confirmado con `nmap -sV`) — el puerto
+        8080 identifica como `Apache httpd`, no como decía el contenido viejo.
+      - Puerto 3306 (MySQL) cerrado desde `localhost` — confirmado, ese punto del contenido
+        original sigue siendo válido tal cual.
+      - Red de Docker Compose: el nombre real es `red-practica` (nombre del servicio en el
+        YAML; el nombre completo de la red Docker es
+        `hilo-conductor-redes-ataques_red-practica`) — el contenido viejo decía `mynetwork`,
+        que no existe acá.
+      - La app corre **dockerizada**, no como archivo suelto en `/root/crud-python/app.py`
+        como en Killercoda. Para los pasos que hacen `grep` sobre el código fuente
+        (`crud-ataques-red` paso 3, `crud-sqli` paso 1), la forma correcta es
+        `docker exec <contenedor-app> grep ... /app/app.py` — confirmado que `grep` está
+        disponible dentro del contenedor y que el contenido (`DB_CONFIG`, la query
+        vulnerable de `/login`, el `INSERT` parametrizado de `/nuevo`) coincide con lo que
+        documentan los pasos.
+
+      **Falta:**
+      - `crud-ataques-red/steps/step2.md` (red interna de Docker — reescribir con el nombre
+        de red real, sin probar todavía los comandos de `docker network inspect` contra el
+        stack), `step3.md` (credenciales — pasar a `docker exec`), `step4.md` (hydra — fijar
+        ruta de la wordlist), `finish.md` (todavía menciona nginx y el puerto 80 en la tabla
+        de puertos escaneados).
+      - Todo `crud-sqli/` sin tocar: `step1.md` (grep → `docker exec`), `step2.md` (rutas
+        `/root/cookies-sqli.txt`), `step3.md` (reemplazar la navegación por la UI de
+        Killercoda — ícono hamburguesa, "Traffic/Ports" — por "abrí localhost:8888 en tu
+        navegador"), `step4.md` (sqlmap, revisar rutas), `intro.md`/`finish.md` (más
+        livianos, probablemente solo el `bash /root/setup.sh` a cambiar, como ya se hizo en
+        `crud-ataques-red/intro.md`).
+      - README con requisitos de instalación de `nmap`/`hydra`/`sqlmap` por SO (Linux `apt`,
+        macOS `brew`) — en Killercoda venían preinstaladas, acá no. No existe todavía en
+        ningún lado de este repo.
+      - Probar en vivo los pasos de `crud-ataques-red/step2` en adelante contra el stack
+        (dejalo levantado con `docker compose up -d` desde la raíz si vas a seguir en la
+        misma máquina; si es una compu distinta, hay que levantarlo de nuevo).
+      - Una vez adaptado todo: actualizar el `README.md` de la raíz de este repo (la nota
+        que dice "todavía en formato Killercoda, falta adaptar") y el `CLAUDE.md`.
 - [x] Decidir visibilidad del repo: pasó a **público** el 2026-08-10 (no se consolidó
       dentro de `pablopedernera0.github.io` para que el `git clone` del alumno sea quirúrgico
       y no se traiga todo el sitio personal).
