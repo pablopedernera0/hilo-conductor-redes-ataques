@@ -48,10 +48,9 @@ falta.
       "Traffic/Ports" para ver puertos, etc.) — hay que reescribirlos para "tu propia
       terminal, contra `localhost`". Los comandos de `nmap`/`hydra`/`sqlmap` en sí mismos no
       cambian. (`crud-stress-test/steps/` ya está adaptado, sirve de referencia.)
-- [ ] Decidir visibilidad del repo: **decidido que sí, pasa a público** (no se consolida
+- [x] Decidir visibilidad del repo: pasó a **público** el 2026-08-10 (no se consolidó
       dentro de `pablopedernera0.github.io` para que el `git clone` del alumno sea quirúrgico
-      y no se traiga todo el sitio personal) — pendiente que Pablo lo cambie en GitHub
-      (Settings → Danger Zone → Change visibility → Make public).
+      y no se traiga todo el sitio personal).
 - [x] Actualizar `la-cajonera/CLAUDE.md`, `GUIA-DOCENTE-HILO-REDES.md` y
       `CRONOGRAMA-HILO-REDES-2C-2026.md` con la división de la Etapa 1 y el link a este repo.
       De paso se encontró y corrigió el mismo problema en la Etapa 6

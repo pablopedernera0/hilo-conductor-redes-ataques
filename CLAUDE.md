@@ -33,9 +33,7 @@ Ningún caso depende de plataformas de terceros con detección de abuso.
   Killercoda** (asume `/root/setup.sh`, rutas de esa sandbox) — falta adaptarlo a "tu propia
   terminal contra `localhost`". Los comandos de `nmap`/`hydra`/`sqlmap` en sí no cambian.
   (`crud-stress-test/` ya está adaptado, sirve de referencia para el mismo trabajo acá.)
-- Visibilidad: **privado hoy**, tiene que pasar a público (o accesible a todo el curso)
-  para que los alumnos lo puedan clonar — decidido que sí, pendiente que Pablo lo cambie en
-  GitHub (Settings → Danger Zone → Change visibility).
+- Visibilidad: **público** (pasado el 2026-08-10), los alumnos ya lo pueden clonar.
 
 ## Convenciones
 
