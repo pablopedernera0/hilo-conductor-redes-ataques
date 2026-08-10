@@ -1,0 +1,40 @@
+{
+  "title": "Reconocimiento y fuerza bruta contra la infraestructura CRUD",
+  "description": "Escaneá la infraestructura con nmap, encontrá la contraseña de MySQL hardcodeada en el código fuente, y probá fuerza bruta con hydra contra el login de la app.",
+  "difficulty": "intermediate",
+  "time": "45",
+  "details": {
+    "intro": {
+      "text": "intro.md"
+    },
+    "steps": [
+      {
+        "title": "Paso 1 — Reconocimiento con nmap",
+        "text": "steps/step1.md"
+      },
+      {
+        "title": "Paso 2 — Más allá del host: la red interna de Docker",
+        "text": "steps/step2.md"
+      },
+      {
+        "title": "Paso 3 — Credenciales expuestas en el código",
+        "text": "steps/step3.md"
+      },
+      {
+        "title": "Paso 4 — Fuerza bruta con hydra",
+        "text": "steps/step4.md"
+      }
+    ],
+    "finish": {
+      "text": "finish.md"
+    },
+    "assets": {
+      "host01": [
+        {"file": "setup.sh", "target": "/root", "chmod": "+x"}
+      ]
+    }
+  },
+  "backend": {
+    "imageid": "ubuntu"
+  }
+}

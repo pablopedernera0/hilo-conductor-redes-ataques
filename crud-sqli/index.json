@@ -1,0 +1,40 @@
+{
+  "title": "Inyección SQL manual y automatizada con sqlmap",
+  "description": "Explotá la consulta vulnerable del login: bypass manual con curl y explotación automatizada con sqlmap para volcar la tabla de usuarios.",
+  "difficulty": "intermediate",
+  "time": "45",
+  "details": {
+    "intro": {
+      "text": "intro.md"
+    },
+    "steps": [
+      {
+        "title": "Paso 1 — La consulta vulnerable, revisitada",
+        "text": "steps/step1.md"
+      },
+      {
+        "title": "Paso 2 — Bypass manual con curl",
+        "text": "steps/step2.md"
+      },
+      {
+        "title": "Paso 3 — Bypass desde el navegador y otras variantes",
+        "text": "steps/step3.md"
+      },
+      {
+        "title": "Paso 4 — Explotación automatizada con sqlmap",
+        "text": "steps/step4.md"
+      }
+    ],
+    "finish": {
+      "text": "finish.md"
+    },
+    "assets": {
+      "host01": [
+        {"file": "setup.sh", "target": "/root", "chmod": "+x"}
+      ]
+    }
+  },
+  "backend": {
+    "imageid": "ubuntu"
+  }
+}
