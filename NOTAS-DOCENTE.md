@@ -58,8 +58,8 @@ falta.
       (`crud-monitoreo-prometheus-grafana`, todavía en Killercoda): también instalaba
       `apache2-utils` y corría `ab -n 2000 -c 50` para el panel en vivo — reemplazado por
       `curl`+`xargs` con los mismos números.
-- [ ] Responder a `security@killercoda.com` confirmando que se tomó nota de la restricción —
-      pendiente de redactar y enviar.
+- [x] Responder a `security@killercoda.com` confirmando que se tomó nota de la
+      restricción — enviado el 2026-08-10.
 
 ## Diferencias con la versión de Killercoda
 
