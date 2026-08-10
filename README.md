@@ -1,31 +1,70 @@
-# Hilo conductor de redes — etapas de ataque (pausadas)
+# Ataques de red y SQLi — entorno local
 
-Contenido de las etapas 3 (`crud-ataques-red`) y 4 (`crud-sqli`) del hilo conductor de
-redes, sacadas de `la-cajonera` (el repo linkeado a Killercoda) el 2026-08-10.
+Infraestructura para las prácticas de ataques del hilo conductor de redes: la misma app
+CRUD (MySQL + Flask, con login) que se usó en las prácticas anteriores, para correr **en tu
+propia computadora** con Docker — no en Killercoda.
 
-## Por qué está acá y no en Killercoda
+> Todo lo que vas a hacer en estas prácticas es contra tu propia infraestructura, corriendo
+> en tu propia computadora. Las mismas técnicas contra un sistema que no es tuyo, sin
+> autorización explícita, son un delito.
 
-Al correr `ab` (Apache Bench, en la Etapa 1) la cuenta de Killercoda quedó bloqueada por
-"illegal activity... cryptominers, security scanners, bruteforce or hacker-tools". Estas
-dos etapas instalan y ejecutan `nmap` (security scanner), `hydra` (bruteforce) y `sqlmap`
-(hacker-tool) — exactamente las categorías que Killercoda prohíbe explícitamente. Hipótesis
-sin confirmar: el bloqueo pudo depender del contenido del repo completo (estos `setup.sh`
-ya estaban pusheados en `la-cajonera`), no solo de lo que se ejecutó en la sesión activa —
-por eso se sacó el contenido del repo linkeado, en vez de solo dejar de usarlo.
+## Requisitos
 
-## Estado
+- [Docker](https://docs.docker.com/get-docker/) y Docker Compose instalados (Docker Desktop
+  en Windows/Mac ya los trae juntos).
+- `git`.
 
-- [ ] Confirmar si sacar este contenido de `la-cajonera` destraba la cuenta
-- [ ] Definir destino final: migrar a una VM local (VirtualBox, TP N°5 del programa de
-      Infraestructura de Redes) en vez de Killercoda
-- [ ] Etapa 1 (`crud-stress-test`, sigue en `la-cajonera`) — evaluar si reemplazar `ab` por
-      un loop de `curl` reduce el riesgo, o si el problema era este contenido y `ab` nunca
-      fue el disparador real
+## Cómo arrancar
 
-## Contenido
+```bash
+git clone https://github.com/pablopedernera0/hilo-conductor-redes-ataques.git
+cd hilo-conductor-redes-ataques
+docker-compose up -d
+```
 
-- `crud-ataques-red/` — reconocimiento con nmap, credenciales hardcodeadas, fuerza bruta con hydra
-- `crud-sqli/` — bypass manual y sqlmap contra la inyección SQL de `crud-auth-login`
+La primera vez tarda un par de minutos (baja las imágenes y arma la app). Cuando termine,
+vas a tener:
 
-Ambas etapas asumen la misma infraestructura (MySQL + `crud-python`, branch `feature-login`)
-documentada en `la-cajonera/CLAUDE.md` y `la-cajonera/hilo-conductor-redes/GUIA-DOCENTE-HILO-REDES.md`.
+| Servicio | Dónde | Para qué |
+|---|---|---|
+| App CRUD (con login) | http://localhost:8888 | La aplicación que vamos a atacar |
+| PhpMyAdmin | http://localhost:8080 | Administrar la base de datos directamente |
+| MySQL | interno (no expuesto al host) | Motor de base de datos |
+
+**Verificar que levantó todo:**
+
+```bash
+docker-compose ps
+curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8888/login
+```
+
+Si el `curl` devuelve `200`, está todo listo.
+
+## Credenciales de referencia
+
+| Qué | Usuario | Contraseña |
+|---|---|---|
+| App (login) | `admin` | `admin123` |
+| MySQL / PhpMyAdmin | `root` | `mysecretpassword` |
+
+(Estas mismas credenciales están hardcodeadas en el código de la app — parte del punto de
+las prácticas es encontrarlas ahí.)
+
+## Apagar el entorno
+
+```bash
+docker-compose down       # apaga los contenedores, conserva los datos
+docker-compose down -v    # apaga y borra los datos (para arrancar de cero)
+```
+
+## Qué hay acá
+
+- `docker-compose.yml` — MySQL + PhpMyAdmin + la app (se construye desde `Dockerfile`)
+- `Dockerfile` — clona `crud-python` (branch `feature-login`) y la deja lista para correr
+- `init.sql` — crea y siembra las tablas `alumnos` y `usuarios` la primera vez que arranca MySQL
+- `crud-ataques-red/`, `crud-sqli/` — contenido de las prácticas (reconocimiento con nmap,
+  fuerza bruta con hydra, inyección SQL manual y con sqlmap). **Nota:** estos pasos todavía
+  están escritos en formato Killercoda (asumen `/root/setup.sh` y rutas de ese entorno) —
+  falta adaptarlos a "correlos en tu propia terminal, contra `localhost`" en vez de la
+  sandbox de Killercoda. Los comandos de `nmap`/`hydra`/`sqlmap`/`curl` en sí no cambian,
+  cambian las rutas y el paso de "preparar el entorno" (ya lo hace este `docker-compose`).

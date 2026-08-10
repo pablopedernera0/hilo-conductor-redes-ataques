@@ -1,0 +1,47 @@
+version: '3'
+services:
+
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mysecretpassword
+      MYSQL_DATABASE: alumnos
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pmysecretpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - red-practica
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: mysecretpassword
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - red-practica
+
+  app:
+    build: .
+    restart: always
+    ports:
+      - "8888:8888"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - red-practica
+
+networks:
+  red-practica:
