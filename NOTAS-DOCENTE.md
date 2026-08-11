@@ -132,8 +132,10 @@ pega directo a la app (`200 OK`, `Server: Werkzeug`).
   `app:8888` (nombre de servicio, ambos en la misma red que `toolbox`).
 - Los archivos de estado intermedio (`wordlist.txt`, `cookies-sqli.txt`) se escriben dentro
   del propio `toolbox` (en `/tmp`), con `docker compose exec toolbox sh -c "cat > /tmp/..."
-  << 'EOF'` — confirmado que el heredoc llega bien sin necesitar la flag `-i`/`-T`
-  explícita (a diferencia del bug ya documentado de `docker exec` a secas con heredocs).
+  << 'EOF'`. **Corregido el 2026-08-11 (ver sección de abajo): esto en realidad sí necesita
+  `-T`** — la afirmación de que andaba sin la flag no se sostuvo en la corrida real de
+  Pablo como alumno. Se reemplazó por `printf | docker compose exec -T toolbox ...` en
+  `crud-ataques-red/steps/step4.md`, que no depende de TTY.
 
 **Todo probado en vivo esta vez, incluidos `hydra` y `sqlmap` (lo que había quedado
 pendiente):**
@@ -178,6 +180,47 @@ vivo contra el stack real, sin ninguna excepción pendiente.**
       `curl`+`xargs` con los mismos números.
 - [x] Responder a `security@killercoda.com` confirmando que se tomó nota de la
       restricción — enviado el 2026-08-10.
+
+## 2026-08-11 (sesión posterior) — Pablo hizo el paso a paso completo como alumno
+
+A diferencia de las pruebas anteriores (comandos sueltos verificados por Claude contra el
+stack), esta vez Pablo siguió las **6 etapas del hilo conductor de punta a punta**, tal
+cual las va a hacer un alumno: las que están en Killercoda desde el navegador, y las de
+este repo (`crud-ataques-red`, `crud-sqli`) desde su propia terminal contra
+`docker-compose`. **Resultado: las 6 etapas quedaron confirmadas funcionando, sin
+excepciones.** En el camino aparecieron 4 problemas reales que no se habían visto en las
+pruebas anteriores (todos corregidos, commiteados y pusheados):
+
+- **`crud-ataques-red/steps/step4.md`, Paso 4.2 (wordlist para `hydra`):** el heredoc por
+  stdin (`docker compose exec toolbox sh -c "cat > /tmp/wordlist.txt" << 'EOF' ...`) tiraba
+  `the input device is not a TTY` y después dejaba la terminal colgada en el prompt de
+  continuación de bash (`>`), esperando un `EOF` que nunca cerraba. Contradice lo que decía
+  este mismo archivo más arriba ("confirmado que anda sin `-T`") — esa afirmación no se
+  sostuvo acá. Corregido reemplazando por
+  `printf '...' | docker compose exec -T toolbox sh -c "cat > /tmp/wordlist.txt"`, que no
+  depende de TTY ni de que el delimitador del heredoc coincida exacto al pegarlo.
+- **`crud-sqli/steps/step3.md`, Paso 3.2 (bypass desde el navegador):** el payload
+  `admin' --` tipeado a mano en el campo del formulario terminaba en Internal Server Error.
+  Causa: `--` en MySQL solo comenta si va seguido de un espacio, y un espacio al final de lo
+  que se tipea en un campo de navegador es invisible y fácil de omitir — a diferencia del
+  Paso 2 (`curl`), donde el espacio está explícito en el código
+  (`--data-urlencode "usuario=admin' -- "`). Corregido cambiando el payload a `admin' #` (y
+  `' OR '1'='1' #` en el Paso 3.3) — `#` comenta hasta fin de línea sin necesitar el espacio.
+- **Navegación entre pasos:** al salir de Killercoda (que la arma sola a partir de
+  `index.json`) se perdió la navegación Anterior/Siguiente entre `intro.md`/`stepN.md`/
+  `finish.md`. Se agregaron links relativos al pie de los 18 archivos de `crud-stress-test`,
+  `crud-ataques-red` y `crud-sqli`, encadenando también los tres escenarios en su orden real.
+  El `README.md` de la raíz tampoco linkeaba a `crud-ataques-red/intro.md` tras el chequeo
+  de entorno — agregado.
+- **`la-cajonera/crud-logs-analisis-cli/assets/setup.sh` (Etapa 5, paso 6/6 "Generando
+  tráfico"):** se colgaba de forma notoria. Causa: el "pico de carga" lanzaba 60 `curl` en
+  paralelo (`&` + `wait`) contra la app Flask, que corre con `app.run(threaded=False)` —
+  atiende un request a la vez, así que forkear 60 procesos de golpe no acelera nada y en el
+  entorno compartido de Killercoda genera cuelgues largos. Corregido a un loop secuencial
+  (sin `&`/`wait`) con `--max-time 5` de red de seguridad.
+
+Con esto, el hilo conductor completo (las 6 etapas) queda confirmado en vivo, no solo por
+comandos verificados sueltos sino por el recorrido real de un alumno.
 
 ## Diferencias con la versión de Killercoda
 
