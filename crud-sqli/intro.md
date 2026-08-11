@@ -19,12 +19,12 @@ Al finalizar esta práctica vas a haber:
 
 ## Preparar el entorno
 
-Antes de continuar con el Paso 1, ejecutá este comando para levantar la infraestructura (la misma de las prácticas anteriores):
+Si todavía no lo hiciste, levantá la infraestructura siguiendo el `README.md` de la raíz de este repo (`docker-compose up -d --build` desde `hilo-conductor-redes-ataques/`, no desde esta carpeta) — es la misma infraestructura de la práctica anterior. Además necesitás `sqlmap` instalado en tu máquina — ver la sección de requisitos del mismo `README.md`.
+
+Verificá que la app responde antes de seguir:
 
 ```bash
-bash /root/setup.sh
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8888/login
 ```
 
-El script instala, además de lo de siempre, `sqlmap`. Puede tardar un par de minutos.
-
-Cuando termine, vas a ver un resumen con los servicios disponibles. Si todo está bien, continuá con el **Paso 1**.
+Debería devolver `200`. Con eso, continuá con el **Paso 1**.

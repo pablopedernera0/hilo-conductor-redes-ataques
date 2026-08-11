@@ -4,7 +4,7 @@ Atacaste la infraestructura CRUD que veníamos desplegando y midiendo, usando t�
 
 ## Lo que hiciste
 
-- **Reconocimiento externo** — escaneaste con `nmap` los puertos publicados al host (80, 8080, 8888) e identificaste los servicios
+- **Reconocimiento externo** — escaneaste con `nmap` los puertos publicados al host (8080, 8888) e identificaste los servicios (y confirmaste a mano con `curl` el que `nmap` no pudo identificar por firma)
 - **Reconocimiento interno** — inspeccionaste la red de Docker y encontraste que MySQL, aunque no está publicado al host, es visible dentro de la red interna
 - **Credenciales expuestas** — encontraste la contraseña de MySQL hardcodeada en el código fuente público y la usaste para acceder directo a la base
 - **Fuerza bruta** — usaste `hydra` para probar una wordlist contra el login de la app hasta dar con la contraseña correcta
@@ -14,8 +14,9 @@ Atacaste la infraestructura CRUD que veníamos desplegando y midiendo, usando t�
 | Comando | Para qué sirve |
 |---------|----------------|
 | `nmap -sV -p <puertos> <host>` | Escanear puertos específicos e identificar el servicio/versión |
+| `curl -sI <url>` | Confirmar a mano un servicio que `nmap` no identificó por firma |
 | `docker network inspect <red>` | Ver qué contenedores están conectados a una red y sus IPs |
-| `grep -n -i "password" <archivo>` | Buscar credenciales hardcodeadas en código fuente |
+| `docker exec <contenedor> grep -n -i "password" <archivo>` | Buscar credenciales hardcodeadas en código fuente, dentro de un contenedor |
 | `hydra -l <usuario> -P <wordlist> <host> -s <puerto> http-post-form "..."` | Fuerza bruta contra un formulario de login web |
 
 ## Conceptos clave

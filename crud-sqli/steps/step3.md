@@ -2,7 +2,7 @@
 
 ## 3.1 — Acceder desde el navegador
 
-Hacé click en el ícono **hamburger** (≡) arriba a la derecha, seleccioná **"Traffic / Ports"**, escribí `8888` en **Custom Ports** y hacé click en **Access**. Vas a caer en la pantalla de login.
+Abrí [http://localhost:8888/login](http://localhost:8888/login) en tu navegador. Vas a caer en la pantalla de login.
 
 ## 3.2 — Probar el mismo payload
 

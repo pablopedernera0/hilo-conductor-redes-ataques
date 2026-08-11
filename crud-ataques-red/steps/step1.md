@@ -18,14 +18,21 @@ El puerto solo no dice mucho. Pidámosle a `nmap` que identifique versiones de s
 nmap -sV -p 8080,8888 localhost
 ```
 
-Deberías ver algo así:
+El puerto 8080 debería identificarse limpio como `Apache httpd` (el servidor que trae la imagen de PhpMyAdmin). El 8888 es más interesante: según la base de fingerprints de tu versión de `nmap`, puede aparecer **sin identificar** (algo como `sun-answerbook?`, con un bloque largo de "unrecognized fingerprint") en vez de decir directamente "Werkzeug". No es que el puerto esté mal configurado — es una limitación real del reconocimiento por firma: nmap no tiene en su base todos los servidores HTTP posibles, y el servidor de desarrollo de Flask es uno de los que suele fallar.
 
-| Puerto | Servicio esperado |
-|--------|--------------------|
-| 8080 | `Apache httpd` (el servidor que trae la imagen de PhpMyAdmin) |
-| 8888 | `Werkzeug`/Python — el servidor de desarrollo de Flask |
+## 1.3 — Confirmar a mano lo que nmap no identificó
 
-## 1.3 — ¿Y el puerto 3306 de MySQL?
+Cuando el escaneo por firma no alcanza, se confirma directamente con una petición HTTP:
+
+```bash
+curl -sI http://127.0.0.1:8888/login | head -3
+```
+
+Ahí sí aparece sin ambigüedad: `Server: Werkzeug/... Python/...` — el servidor de desarrollo de Flask, no pensado para producción (la misma limitación que viste en la práctica de stress testing).
+
+> Guardate esta lección junto con la del puerto 3306 que sigue: un escaneo automático (por firma o por puerto publicado) no siempre alcanza — a veces hace falta un paso manual para confirmar.
+
+## 1.4 — ¿Y el puerto 3306 de MySQL?
 
 ```bash
 nmap -p 3306 localhost

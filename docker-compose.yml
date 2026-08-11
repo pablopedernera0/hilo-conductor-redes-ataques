@@ -1,4 +1,3 @@
-version: '3'
 services:
 
   mysql:
@@ -33,7 +32,12 @@ services:
       - red-practica
 
   app:
-    build: .
+    build:
+      context: .
+      args:
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        NO_PROXY: ${NO_PROXY:-}
     restart: always
     ports:
       - "8888:8888"

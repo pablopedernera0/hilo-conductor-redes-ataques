@@ -1,5 +1,16 @@
 FROM python:3.11-slim
 
+# Solo se usan si se pasan como build-args (ver docker-compose.yml) -- en blanco no
+# afectan nada. Hacen falta detrás de un proxy corporativo para que git/apt/pip salgan
+# a internet durante el build; el contenedor en runtime no los necesita (no sale a
+# internet, solo habla con el servicio "mysql" de la red interna).
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG NO_PROXY
+ENV http_proxy=$HTTP_PROXY
+ENV https_proxy=$HTTPS_PROXY
+ENV no_proxy=$NO_PROXY
+
 RUN apt-get update -qq \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq git \
     && rm -rf /var/lib/apt/lists/*

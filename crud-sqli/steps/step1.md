@@ -4,8 +4,10 @@ En la práctica de login ya leíste esta ruta, pero sin prestarle atención al p
 
 ## 1.1 — Ver la consulta
 
+La app corre dockerizada, así que el código fuente está dentro del contenedor `app`, no en tu propio disco:
+
 ```bash
-grep -n -A 3 "SELECT id, usuario FROM usuarios" /root/crud-python/app.py
+docker exec $(docker ps -qf "name=app") grep -n -A 3 "SELECT id, usuario FROM usuarios" /app/app.py
 ```
 
 Deberías ver algo así:
@@ -20,7 +22,7 @@ cur.execute(query)
 `usuario` y `password` vienen directo de `request.form`, sin validar, y se insertan con un f-string dentro de la consulta. Compará con las rutas del CRUD (`/nuevo`, `/editar`), que sí son seguras:
 
 ```bash
-grep -n -A 2 "INSERT INTO alumnos" /root/crud-python/app.py
+docker exec $(docker ps -qf "name=app") grep -n -A 2 "INSERT INTO alumnos" /app/app.py
 ```
 
 Ahí los valores van como parámetros separados (`%s` + una tupla) — la librería de MySQL los escapa antes de armar la consulta real. En `/login`, en cambio, el texto que mandás se convierte literalmente en parte del SQL.

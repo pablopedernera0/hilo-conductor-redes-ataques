@@ -43,58 +43,69 @@ falta.
 - [x] Entorno y contenido de `crud-stress-test/` — armado, adaptado y probado end-to-end
       localmente (compose up, app bare, `ab` real, dev server vs. Gunicorn)
 - [x] Versión liviana de la Etapa 1 en `la-cajonera/crud-stress-test` (con `curl`)
-- [~] **Adaptar `crud-ataques-red/steps/*.md` y `crud-sqli/steps/*.md` — EN PROGRESO,
-      arrancado el 2026-08-10, cortado a mitad de camino (Pablo sigue mañana desde otra
-      compu).** Estado real, no asumir que sigue en formato Killercoda intacto:
+- [x] **Adaptar `crud-ataques-red/steps/*.md` y `crud-sqli/steps/*.md` — completado el
+      2026-08-11.** Se sacaron también `index.json` y `assets/setup.sh` de ambas carpetas
+      (artefactos de Killercoda que quedaron sin uso — este repo no los necesita, igual que
+      `crud-stress-test/`, que nunca los tuvo).
 
-      **Ya hecho:**
-      - `docker-compose up -d --build` desde la raíz **probado y funciona** — el pendiente
-        de "confirmar el build en una máquina normal" (más abajo) está resuelto, al menos en
-        esta máquina de desarrollo.
-      - `crud-ataques-red/intro.md` y `crud-ataques-red/steps/step1.md` ya reescritos y
-        probados contra el stack real.
+      **Hallazgos de la sesión anterior (2026-08-10), confirmados y ya reflejados en el
+      contenido:**
+      - El `docker-compose.yml` **no tiene servicio `web`/nginx** — solo `mysql`,
+        `phpmyadmin`, `app`. Se sacaron todas las referencias a nginx/puerto 80 del
+        contenido (estaban en `step2.md` y `finish.md` de `crud-ataques-red`).
+      - PhpMyAdmin corre sobre **Apache** (confirmado con `nmap -sV`, puerto 8080).
+      - Puerto 3306 (MySQL) cerrado desde `localhost` — confirmado.
+      - Red de Docker Compose: nombre real `hilo-conductor-redes-ataques_red-practica`
+        (`red-practica` alcanza como filtro parcial) — ya reflejado en `step2.md`.
+      - La app corre dockerizada; los pasos que antes hacían `grep` sobre
+        `/root/crud-python/app.py` ahora usan `docker exec $(docker ps -qf "name=app") grep
+        ... /app/app.py` (`crud-ataques-red` paso 3, `crud-sqli` paso 1) — confirmado que
+        `docker ps -qf "name=app"` matchea un solo contenedor (no colisiona con
+        `phpmyadmin`, a diferencia del bug de `mysqld-exporter` de la Etapa 6).
 
-      **Hallazgos importantes que hay que tener en cuenta al seguir** (encontrados corriendo
-      todo en vivo, no leyendo el código nomás):
-      - El `docker-compose.yml` actual **no tiene servicio `web`/nginx**. Solo `mysql`,
-        `phpmyadmin`, `app`. El contenido original de Killercoda asumía un tercer contenedor
-        nginx en el puerto 80 — hay que sacar esas referencias, no agregarlas de vuelta.
-      - PhpMyAdmin corre sobre **Apache**, no nginx (confirmado con `nmap -sV`) — el puerto
-        8080 identifica como `Apache httpd`, no como decía el contenido viejo.
-      - Puerto 3306 (MySQL) cerrado desde `localhost` — confirmado, ese punto del contenido
-        original sigue siendo válido tal cual.
-      - Red de Docker Compose: el nombre real es `red-practica` (nombre del servicio en el
-        YAML; el nombre completo de la red Docker es
-        `hilo-conductor-redes-ataques_red-practica`) — el contenido viejo decía `mynetwork`,
-        que no existe acá.
-      - La app corre **dockerizada**, no como archivo suelto en `/root/crud-python/app.py`
-        como en Killercoda. Para los pasos que hacen `grep` sobre el código fuente
-        (`crud-ataques-red` paso 3, `crud-sqli` paso 1), la forma correcta es
-        `docker exec <contenedor-app> grep ... /app/app.py` — confirmado que `grep` está
-        disponible dentro del contenedor y que el contenido (`DB_CONFIG`, la query
-        vulnerable de `/login`, el `INSERT` parametrizado de `/nuevo`) coincide con lo que
-        documentan los pasos.
+      **Hallazgo nuevo de esta sesión (2026-08-11), corregido en el contenido:** el `nmap
+      -sV -p 8080,8888 localhost` original prometía que el puerto 8888 se identifica limpio
+      como `Werkzeug/Python`. Probado en vivo (nmap 7.80), **no es así** — sale sin
+      reconocer (`sun-answerbook?`, fingerprint sin match en la base de nmap). El puerto
+      8080 (Apache) sí se identifica bien. `crud-ataques-red/steps/step1.md` se reescribió
+      para explicar esto como una limitación real del reconocimiento por firma (no todos los
+      servidores HTTP están en la base de nmap) y agregar un paso de confirmación manual con
+      `curl -sI` — más honesto que prometer un resultado que no siempre se da, y es en sí
+      mismo un concepto pedagógico válido (cuándo un escaneo automático no alcanza).
 
-      **Falta:**
-      - `crud-ataques-red/steps/step2.md` (red interna de Docker — reescribir con el nombre
-        de red real, sin probar todavía los comandos de `docker network inspect` contra el
-        stack), `step3.md` (credenciales — pasar a `docker exec`), `step4.md` (hydra — fijar
-        ruta de la wordlist), `finish.md` (todavía menciona nginx y el puerto 80 en la tabla
-        de puertos escaneados).
-      - Todo `crud-sqli/` sin tocar: `step1.md` (grep → `docker exec`), `step2.md` (rutas
-        `/root/cookies-sqli.txt`), `step3.md` (reemplazar la navegación por la UI de
-        Killercoda — ícono hamburguesa, "Traffic/Ports" — por "abrí localhost:8888 en tu
-        navegador"), `step4.md` (sqlmap, revisar rutas), `intro.md`/`finish.md` (más
-        livianos, probablemente solo el `bash /root/setup.sh` a cambiar, como ya se hizo en
-        `crud-ataques-red/intro.md`).
-      - README con requisitos de instalación de `nmap`/`hydra`/`sqlmap` por SO (Linux `apt`,
-        macOS `brew`) — en Killercoda venían preinstaladas, acá no. No existe todavía en
-        ningún lado de este repo.
-      - Probar en vivo los pasos de `crud-ataques-red/step2` en adelante contra el stack
-        (dejalo levantado con `docker compose up -d` desde la raíz si vas a seguir en la
-        misma máquina; si es una compu distinta, hay que levantarlo de nuevo).
-      - Una vez adaptado todo: actualizar el `README.md` de la raíz de este repo (la nota
-        que dice "todavía en formato Killercoda, falta adaptar") y el `CLAUDE.md`.
+      **Probado en vivo contra el stack real (`docker compose up -d --build` desde la raíz,
+      2026-08-11):**
+      - `crud-ataques-red`: los 4 pasos completos — nmap (puertos 8080/8888/3306, con el
+        hallazgo de arriba), `docker network inspect` sobre `red-practica`, acceso directo a
+        MySQL con la credencial hardcodeada (`docker exec ... mysql -uroot -pmysecretpassword
+        -e "SELECT * FROM alumnos.usuarios;"` devuelve `admin`/`admin123`, confirmado), y el
+        `docker exec ... grep` de las credenciales.
+      - `crud-sqli`: pasos 1-3 (grep de la consulta vulnerable vía `docker exec`, bypass
+        manual con `curl --data-urlencode` — confirmado `200` con contraseña incorrecta y
+        `302` con el payload `admin' -- `, y acceso post-bypass confirmado con la cookie).
+      - **No probado (sin la herramienta instalada en esta máquina, y sin `sudo`/`apt` acá
+        para instalarla):** `hydra` (`crud-ataques-red` paso 4) y `sqlmap` (`crud-sqli` paso
+        4). Los comandos de esos pasos no cambiaron respecto al contenido original de
+        Killercoda (ya habían sido probados ahí en su momento, ver más abajo el detalle de
+        `sqlmap` con time-based blind) — solo se les corrigió la ruta de archivos locales
+        (`/root/wordlist.txt` → `/tmp/wordlist.txt`, `/root/cookies-sqli.txt` →
+        `/tmp/cookies-sqli.txt`). **Pendiente que alguien con `hydra`/`sqlmap` instalados
+        corra esos dos pasos una vez para confirmar.**
+
+      **Bug de infraestructura encontrado y corregido en esta sesión (no es de contenido,
+      es del `Dockerfile`/`docker-compose.yml` de la raíz):** el build de la imagen `app`
+      hace `apt-get install git` y clona `crud-python` desde GitHub — necesita salir a
+      internet. En una máquina detrás de proxy corporativo (como la usada en esta sesión:
+      `HTTP_PROXY=http://10.100.254.219:3128`, Rosario — ver `~/trabajos/docker_dev/README.md`
+      en la máquina de Pablo para el detalle de esa red) el build fallaba en seco
+      (`Temporary failure resolving 'deb.debian.org'`) porque ni el `Dockerfile` ni el
+      `docker-compose.yml` pasaban el proxy al build. Se agregó `ARG`/`ENV`
+      `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY` al `Dockerfile` (mismo patrón que
+      `~/trabajos/docker_dev/docker_lamp/php/php72/Dockerfile`) y `build.args` en el
+      `docker-compose.yml`, con default vacío — no afecta a nadie que no esté detrás de un
+      proxy (que va a ser el caso de la gran mayoría de los alumnos). Documentado en el
+      `README.md` de la raíz. También se sacó la línea `version: '3'` del
+      `docker-compose.yml` (obsoleta, generaba un warning en cada `up`).
 - [x] Decidir visibilidad del repo: pasó a **público** el 2026-08-10 (no se consolidó
       dentro de `pablopedernera0.github.io` para que el `git clone` del alumno sea quirúrgico
       y no se traiga todo el sitio personal).

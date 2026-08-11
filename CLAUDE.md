@@ -25,14 +25,20 @@ Ningún caso depende de plataformas de terceros con detección de abuso.
 - `crud-stress-test/`: **armado, adaptado y probado end-to-end** (compose up, app bare,
   `ab` real, dev server vs. Gunicorn) — confirmado funcionando de punta a punta.
 - Entorno de `crud-ataques-red`/`crud-sqli` (raíz del repo): **armado y probado
-  parcialmente**. MySQL + PhpMyAdmin + `init.sql` + resolución de `mysql` por DNS interno de
-  Docker Compose: confirmado funcionando. El build de la imagen `app` (necesita salir a
-  internet para `git clone`/`apt-get`) no se pudo probar en la máquina de desarrollo usada —
-  sin salida a internet desde contenedores ahí. Pendiente confirmación en una máquina normal.
-- Contenido pedagógico de `crud-ataques-red/`, `crud-sqli/`: todavía en **formato
-  Killercoda** (asume `/root/setup.sh`, rutas de esa sandbox) — falta adaptarlo a "tu propia
-  terminal contra `localhost`". Los comandos de `nmap`/`hydra`/`sqlmap` en sí no cambian.
-  (`crud-stress-test/` ya está adaptado, sirve de referencia para el mismo trabajo acá.)
+  end-to-end** (2026-08-11). El build de la imagen `app` necesita salir a internet
+  (`git clone`/`apt-get`); en redes con proxy corporativo hace falta exportar
+  `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY` antes de `docker compose up --build` — el
+  `Dockerfile`/`docker-compose.yml` ya lo soportan (`ARG`/`build.args`, default vacío, no
+  afecta a quien no esté detrás de un proxy). Documentado en el `README.md` de la raíz.
+- Contenido pedagógico de `crud-ataques-red/`, `crud-sqli/`: **adaptado** a "tu propia
+  terminal contra `localhost`" (completado 2026-08-11) — ya no quedan referencias a
+  `/root/setup.sh` ni a la UI de Killercoda. Se sacaron también `index.json` y
+  `assets/setup.sh` de ambas carpetas (artefactos de Killercoda sin uso acá). Reconocimiento
+  y bypass manual probados en vivo contra el stack real; `hydra` y `sqlmap` en sí (los
+  comandos no cambiaron) no se re-probaron en esta sesión por no tener esas herramientas
+  instaladas en la máquina de desarrollo usada — pendiente confirmarlo una vez con cada una
+  instalada. Detalle completo, incluido un hallazgo real de `nmap` que corrigió el paso 1 de
+  `crud-ataques-red`, en `NOTAS-DOCENTE.md`.
 - Visibilidad: **público** (pasado el 2026-08-10), los alumnos ya lo pueden clonar.
 
 ## Convenciones

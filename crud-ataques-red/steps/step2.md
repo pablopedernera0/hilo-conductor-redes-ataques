@@ -5,17 +5,17 @@ MySQL no está publicado al host, pero sí vive en una red Docker a la que nuest
 ## 2.1 — Encontrar la red
 
 ```bash
-docker network ls --filter "name=mynetwork"
+docker network ls --filter "name=red-practica"
 ```
 
 ## 2.2 — Ver quién está conectado
 
 ```bash
-docker network inspect $(docker network ls --filter "name=mynetwork" -q) \
+docker network inspect $(docker network ls --filter "name=red-practica" -q) \
   --format '{{range $k, $v := .Containers}}{{$v.Name}} -> {{$v.IPv4Address}}{{"\n"}}{{end}}'
 ```
 
-Vas a ver los tres contenedores (`mysql`, `phpmyadmin`, `web`) con su IP interna.
+Vas a ver los tres contenedores (`mysql`, `phpmyadmin`, `app`) con su IP interna.
 
 ## 2.3 — Escanear el contenedor de MySQL directamente
 

@@ -4,8 +4,10 @@ Saber que MySQL está abierto no sirve de mucho sin una credencial. Pero ya tene
 
 ## 3.1 — Buscar credenciales en el código
 
+La app corre dockerizada, así que el código fuente está dentro del contenedor `app`, no en tu propio disco:
+
 ```bash
-grep -n -i "password" /root/crud-python/app.py
+docker exec $(docker ps -qf "name=app") grep -n -i "password" /app/app.py
 ```
 
 Ahí está: `DB_CONFIG` tiene el usuario `root` y la contraseña de MySQL en texto plano, en el archivo que subimos a un repositorio **público** de GitHub.
