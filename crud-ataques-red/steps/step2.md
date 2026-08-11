@@ -1,6 +1,6 @@
 # Paso 2 — Más allá del host: la red interna de Docker
 
-MySQL no está publicado al host, pero sí vive en una red Docker a la que nuestra terminal (que corre en el mismo host) puede llegar directo por IP.
+MySQL no está publicado al host, pero sí vive en la misma red Docker que `toolbox` — el contenedor que venimos usando para atacar. Los comandos de `docker network` de esta sección corren en tu propia terminal (son del Docker del host, no de adentro de ningún contenedor); el escaneo en sí lo hacemos, como siempre, con `docker compose exec toolbox`.
 
 ## 2.1 — Encontrar la red
 
@@ -29,10 +29,12 @@ echo "MySQL está en $MYSQL_IP"
 Y escaneala:
 
 ```bash
-nmap -sV -p 3306 $MYSQL_IP
+docker compose exec toolbox nmap -sV -p 3306 $MYSQL_IP
 ```
 
 Esta vez sí aparece **abierto**, con el servicio identificado como `mysql`.
+
+> Como `toolbox` está en la misma red que MySQL, también podrías haber escaneado directo por nombre de servicio (`docker compose exec toolbox nmap -sV -p 3306 mysql`), sin pasar por la IP. Vale la pena conocer las dos formas: la resolución por nombre no siempre está disponible (por ejemplo, si el atacante llegó a la red por otro medio que no sea Docker Compose), y ahí la única forma de llegar al servicio es por IP.
 
 ## 2.4 — La lección
 

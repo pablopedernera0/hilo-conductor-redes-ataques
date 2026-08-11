@@ -47,5 +47,21 @@ services:
     networks:
       - red-practica
 
+  # Contenedor con nmap/hydra/sqlmap/cliente mysql -- las Etapas 3 y 4 lo usan para atacar
+  # los demás servicios, así el alumno no necesita instalar ninguna de esas herramientas en
+  # su propia máquina, solo Docker. Se queda corriendo en espera ("sleep infinity"); los
+  # pasos de la práctica le mandan comandos con "docker compose exec toolbox <comando>".
+  toolbox:
+    build:
+      context: ./toolbox
+      args:
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        NO_PROXY: ${NO_PROXY:-}
+    networks:
+      - red-practica
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 networks:
   red-practica:

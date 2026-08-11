@@ -83,14 +83,75 @@ falta.
       - `crud-sqli`: pasos 1-3 (grep de la consulta vulnerable vía `docker exec`, bypass
         manual con `curl --data-urlencode` — confirmado `200` con contraseña incorrecta y
         `302` con el payload `admin' -- `, y acceso post-bypass confirmado con la cookie).
-      - **No probado (sin la herramienta instalada en esta máquina, y sin `sudo`/`apt` acá
-        para instalarla):** `hydra` (`crud-ataques-red` paso 4) y `sqlmap` (`crud-sqli` paso
-        4). Los comandos de esos pasos no cambiaron respecto al contenido original de
-        Killercoda (ya habían sido probados ahí en su momento, ver más abajo el detalle de
-        `sqlmap` con time-based blind) — solo se les corrigió la ruta de archivos locales
-        (`/root/wordlist.txt` → `/tmp/wordlist.txt`, `/root/cookies-sqli.txt` →
-        `/tmp/cookies-sqli.txt`). **Pendiente que alguien con `hydra`/`sqlmap` instalados
-        corra esos dos pasos una vez para confirmar.**
+      - `hydra` y `sqlmap` **no se habían probado en esta sesión** por no estar instalados en
+        la máquina de desarrollo usada y no tener `sudo` para instalarlos — resuelto más
+        abajo agregando un contenedor `toolbox` (ver la sección siguiente), que sí permitió
+        probarlos.
+
+## 2026-08-11 (segunda mitad de la sesión) — contenedor `toolbox`: nmap/hydra/sqlmap dockerizados
+
+Surgió una pregunta razonable revisando el punto anterior: si `nmap`/`hydra`/`sqlmap`
+tampoco están instalados en esta máquina de desarrollo, **¿por qué pedirle a cada alumno que
+los instale a mano, distinto según el SO?** Es exactamente el mismo problema que ya se había
+resuelto para la app (`Dockerfile` propio en vez de "instalá Python y las libs"). Se armó
+`toolbox/Dockerfile`: una imagen Debian con `nmap`, `hydra` (ambos por `apt-get`, no hace
+falta compilar) y `sqlmap` (clonado de su repo oficial — es Python puro, no tiene build),
+más un cliente `mysql`. Se agregó como servicio `toolbox` al `docker-compose.yml` de la
+raíz, en la misma red `red-practica`, sin exponer nada y sin correr nada por sí solo
+(`sleep infinity`) — cada paso de la práctica le manda un comando puntual con `docker
+compose exec toolbox <comando>`.
+
+**Con esto, el requisito de "instalar nmap/hydra/sqlmap/mysql-client según tu SO" (la tabla
+que se había agregado al README un rato antes) desapareció por completo** — el único
+requisito real vuelve a ser tener Docker, igual que en Killercoda. Se sacó esa tabla del
+README y se reemplazó por la explicación del contenedor `toolbox`.
+
+**Bug real encontrado y corregido en el momento:** el `ARG`/`ENV` de proxy que se le había
+agregado al `Dockerfile` de `app` (para el build) quedaba **persistido en runtime** — un
+`curl` desde adentro de un contenedor con `http_proxy` seteado intenta salir por ese proxy
+para *cualquier* pedido HTTP, incluidos los de la propia red interna. Probado en vivo: un
+`curl -sI http://host.docker.internal:8888/login` desde `toolbox` devolvía un `503` del
+proxy corporativo (`squid/4.6`) en vez de pegarle a la app. Se corrigió agregando `ENV
+http_proxy="" https_proxy="" no_proxy=""` después de los pasos de build que sí necesitan
+salir a internet, tanto en `toolbox/Dockerfile` como (por consistencia/seguridad, aunque no
+lo disparaba) en el `Dockerfile` de `app`. Confirmado después del fix: el mismo `curl` le
+pega directo a la app (`200 OK`, `Server: Werkzeug`).
+
+**Cambios de contenido que trajo `toolbox` (targets):**
+- `crud-ataques-red` Paso 1 (recon externo): el target pasa de `localhost` (cuando `nmap`
+  corría en la propia terminal del alumno) a `host.docker.internal` (cómo un contenedor se
+  refiere a la máquina que lo hostea) — sigue viendo exactamente lo mismo (8080/8888
+  abiertos, 3306 cerrado), confirmado con el mismo hallazgo del nmap 7.93 que con el 7.80
+  del host (puerto 8888 sin identificar por firma, hace falta el `curl -sI` manual).
+- `crud-ataques-red` Paso 2/3 (recon interno + credenciales): como `toolbox` ya vive en la
+  red interna, `mysql -h mysql ...` funciona directo por nombre de servicio — ya no hace
+  falta la búsqueda manual de IP con `docker inspect` para conectarse (se dejó esa búsqueda
+  en el Paso 2 como contenido, con una nota aclarando que también se podría usar el nombre
+  de servicio directo, para no perder la lección de "cómo encontrar un target sin DNS").
+- `crud-ataques-red` Paso 4 / `crud-sqli` Paso 2 y 4: los targets `127.0.0.1:8888` pasan a
+  `app:8888` (nombre de servicio, ambos en la misma red que `toolbox`).
+- Los archivos de estado intermedio (`wordlist.txt`, `cookies-sqli.txt`) se escriben dentro
+  del propio `toolbox` (en `/tmp`), con `docker compose exec toolbox sh -c "cat > /tmp/..."
+  << 'EOF'` — confirmado que el heredoc llega bien sin necesitar la flag `-i`/`-T`
+  explícita (a diferencia del bug ya documentado de `docker exec` a secas con heredocs).
+
+**Todo probado en vivo esta vez, incluidos `hydra` y `sqlmap` (lo que había quedado
+pendiente):**
+- `nmap` (recon externo e interno) — mismo comportamiento que antes de `toolbox`, confirmado.
+- `mysql -h mysql` directo — confirmado, mismo resultado (`admin`/`admin123`).
+- `hydra -l admin -P /tmp/wordlist.txt app -s 8888 http-post-form "..."` — confirmado,
+  encuentra `admin123` en la wordlist, igual que documenta el contenido.
+- `sqlmap ... --batch` (detección) — confirmado, detecta `usuario` inyectable por
+  **time-based blind** (no boolean-based), exactamente como ya describía el contenido
+  heredado de Killercoda.
+- `sqlmap ... --dbs` — confirmado, ~4 minutos por el time-based blind (consistente con la
+  advertencia que ya tiene el contenido), devuelve `alumnos`, `information_schema`, `mysql`,
+  `performance_schema`, `sys`.
+- `sqlmap ... --dump -D alumnos -T usuarios` — confirmado, ~1 minuto, vuelca exactamente
+  `admin`/`admin123` como documenta el Paso 4.3 de `crud-sqli`.
+
+**Con esto, los 4 pasos de `crud-ataques-red` y los 4 de `crud-sqli` quedaron confirmados en
+vivo contra el stack real, sin ninguna excepción pendiente.**
 
       **Bug de infraestructura encontrado y corregido en esta sesión (no es de contenido,
       es del `Dockerfile`/`docker-compose.yml` de la raíz):** el build de la imagen `app`

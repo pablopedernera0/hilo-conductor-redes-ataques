@@ -11,12 +11,15 @@ Atacaste la infraestructura CRUD que veníamos desplegando y midiendo, usando t�
 
 ## Comandos clave para recordar
 
+Todos los comandos de `nmap`/`hydra`/`mysql` van con el prefijo `docker compose exec toolbox` — esas herramientas viven en ese contenedor, no en tu máquina.
+
 | Comando | Para qué sirve |
 |---------|----------------|
 | `nmap -sV -p <puertos> <host>` | Escanear puertos específicos e identificar el servicio/versión |
 | `curl -sI <url>` | Confirmar a mano un servicio que `nmap` no identificó por firma |
-| `docker network inspect <red>` | Ver qué contenedores están conectados a una red y sus IPs |
+| `docker network inspect <red>` | Ver qué contenedores están conectados a una red y sus IPs (comando del host, no de `toolbox`) |
 | `docker exec <contenedor> grep -n -i "password" <archivo>` | Buscar credenciales hardcodeadas en código fuente, dentro de un contenedor |
+| `mysql -h <host> -u<usuario> -p<contraseña> -e "<query>"` | Conectarse directo a MySQL con una credencial |
 | `hydra -l <usuario> -P <wordlist> <host> -s <puerto> http-post-form "..."` | Fuerza bruta contra un formulario de login web |
 
 ## Conceptos clave

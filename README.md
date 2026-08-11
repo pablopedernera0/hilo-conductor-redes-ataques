@@ -27,23 +27,34 @@ login) y la corre como proceso suelto en vez de dockerizada.
 - [Docker](https://docs.docker.com/get-docker/) y Docker Compose instalados (Docker Desktop
   en Windows/Mac ya los trae juntos).
 - `git`.
-- Para las Etapas 3 y 4 hace falta además `nmap`, `hydra`, `sqlmap` y un cliente de `mysql`
-  instalados **en tu propia máquina** (no dentro de Docker — atacan la infraestructura desde
-  afuera, como haría un atacante real):
 
-  | Herramienta | Linux (Debian/Ubuntu) | macOS (Homebrew) |
-  |---|---|---|
-  | `nmap` | `sudo apt install nmap` | `brew install nmap` |
-  | `hydra` | `sudo apt install hydra` | `brew install hydra` |
-  | `sqlmap` | `sudo apt install sqlmap` | `brew install sqlmap` |
-  | cliente `mysql` | `sudo apt install mysql-client` (o `default-mysql-client`) | `brew install mysql-client` |
+Nada más. `nmap`, `hydra`, `sqlmap` y un cliente de `mysql` **no** hace falta instalarlos en
+tu máquina — vienen empaquetados en el contenedor `toolbox` (ver más abajo), que se levanta
+solo con el resto del `docker-compose up`.
 
-  En Windows, la forma más simple es correr estas prácticas desde WSL2 (que ya trae `apt`).
+Si estás detrás de un proxy corporativo, exportá `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY` antes
+de levantar el entorno (o ponelos en un archivo `.env` en la raíz de este repo, `docker
+compose` los toma solo) — los `Dockerfile` de `app` y `toolbox` los usan para poder salir a
+internet (clonar código, `apt-get`) durante el build. No quedan activos en los contenedores
+ya corriendo, así que no interfieren con los ataques en sí.
 
-- Si estás detrás de un proxy corporativo, exportá `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY`
-  antes de levantar el entorno (o ponelos en un archivo `.env` en la raíz de este repo,
-  `docker compose` los toma solo) — el `Dockerfile` de la app los usa para poder clonar el
-  código y bajar dependencias durante el build.
+## Atacar desde el contenedor `toolbox`
+
+Las Etapas 3 y 4 necesitan herramientas que Killercoda prohíbe por categoría (ver el
+incidente al principio de este README) y que tampoco tiene sentido pedirle a cada alumno que
+instale a mano, distinto según el sistema operativo. Por eso viven en un contenedor aparte,
+`toolbox` (`nmap`, `hydra`, `sqlmap`, cliente `mysql`, `curl`), conectado a la misma red
+interna que `app`/`mysql`/`phpmyadmin`. Se levanta con el resto del `docker-compose up` y se
+queda esperando (no expone nada, no hace falta entrar a una terminal interactiva) — cada paso
+de la práctica le manda un comando puntual con:
+
+```bash
+docker compose exec toolbox <comando>
+```
+
+corrido desde la raíz de este repo. Por ejemplo, para escanear los puertos publicados al
+host: `docker compose exec toolbox nmap -sV -p 8080,8888 host.docker.internal`
+(`host.docker.internal` es cómo un contenedor se refiere a la máquina que lo hostea).
 
 ## Cómo arrancar (Etapas 3 y 4)
 
@@ -90,17 +101,21 @@ docker-compose down -v    # apaga y borra los datos (para arrancar de cero)
 
 ## Qué hay acá
 
-- `docker-compose.yml` — MySQL + PhpMyAdmin + la app (se construye desde `Dockerfile`), para
-  las Etapas 3 y 4
-- `Dockerfile` — clona `crud-python` (branch `feature-login`) y la deja lista para correr
+- `docker-compose.yml` — MySQL + PhpMyAdmin + la app (se construye desde `Dockerfile`) +
+  `toolbox` (nmap/hydra/sqlmap/mysql, se construye desde `toolbox/Dockerfile`), para las
+  Etapas 3 y 4.
+- `Dockerfile` — clona `crud-python` (branch `feature-login`) y la deja lista para correr.
+- `toolbox/Dockerfile` — imagen con `nmap`, `hydra`, `sqlmap` (clonado del repo oficial,
+  es Python puro) y cliente `mysql`, conectada a la misma red interna. Se queda corriendo
+  en espera (`sleep infinity`); los pasos de la práctica le mandan comandos con `docker
+  compose exec toolbox <comando>`.
 - `init.sql` — crea y siembra las tablas `alumnos` y `usuarios` la primera vez que arranca MySQL
 - `crud-ataques-red/`, `crud-sqli/` — contenido de las prácticas (reconocimiento con nmap,
-  fuerza bruta con hydra, inyección SQL manual y con sqlmap), adaptado para correrse en tu
-  propia terminal contra `localhost` (no en formato Killercoda). Los pasos de reconocimiento
-  y bypass manual fueron probados en vivo contra el stack real; los de `hydra`/`sqlmap`
-  en sí (los comandos no cambiaron respecto a la versión de Killercoda) no se re-probaron acá
-  por no tener esas herramientas instaladas en esta máquina de desarrollo — ver
-  `NOTAS-DOCENTE.md`.
+  fuerza bruta con hydra, inyección SQL manual y con sqlmap), adaptado para correrse contra
+  este stack (no en formato Killercoda) usando `toolbox` en vez de herramientas instaladas
+  en la máquina del alumno. Todos los pasos, incluidos `hydra` y `sqlmap`, se probaron en
+  vivo contra el stack real — ver `NOTAS-DOCENTE.md` para el detalle.
 - `crud-stress-test/` — entorno y contenido de la Etapa 1 (carga real con `ab`, dev server
   vs. Gunicorn), ya adaptado a "tu propia terminal contra `localhost`" — ver su propio
-  `README.md` para arrancarlo, es independiente del `docker-compose.yml` de acá arriba.
+  `README.md` para arrancarlo, es independiente del `docker-compose.yml` de acá arriba. No
+  usa `toolbox`: `ab` corre en la terminal del alumno, no dentro de un contenedor.

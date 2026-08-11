@@ -27,6 +27,13 @@ WORKDIR /app
 # Compose resuelve ese nombre por DNS interno, no hace falta conocer ninguna IP.
 RUN sed -i "s/172.18.0.2/mysql/" app.py
 
+# El proxy de arriba es solo para el build (git/pip) -- se limpia para que no quede
+# activo en runtime, aunque hoy esta app no haga llamadas HTTP salientes (ver el mismo
+# bug real, encontrado y corregido en toolbox/Dockerfile).
+ENV http_proxy=""
+ENV https_proxy=""
+ENV no_proxy=""
+
 EXPOSE 8888
 
 CMD ["python", "app.py"]

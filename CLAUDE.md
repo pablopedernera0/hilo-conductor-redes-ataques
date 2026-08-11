@@ -12,11 +12,15 @@ incidente en `NOTAS-DOCENTE.md`.
 
 - `crud-ataques-red/` y `crud-sqli/` comparten el `docker-compose.yml`/`Dockerfile` de la
   raíz: MySQL + PhpMyAdmin + la app CRUD dockerizada (branch `feature-login` de
-  [`pablopedernera0/crud-python`](https://github.com/pablopedernera0/crud-python)).
+  [`pablopedernera0/crud-python`](https://github.com/pablopedernera0/crud-python)) +
+  `toolbox` (`toolbox/Dockerfile`: `nmap`/`hydra`/`sqlmap`/cliente `mysql`, en la misma red
+  interna, se queda esperando comandos con `docker compose exec toolbox <comando>`) — así el
+  alumno tampoco necesita instalar esas herramientas, solo Docker.
 - `crud-stress-test/` tiene su **propio** `docker-compose.yml` (solo MySQL + PhpMyAdmin,
   MySQL expuesto en `localhost:3306`) — la app va sin dockerizar, como proceso suelto
   (branch `main`, sin login), porque el ejercicio depende de matarla y reiniciarla con otro
-  servidor WSGI (`python3 app.py` vs. `gunicorn`). Ver su propio `README.md`.
+  servidor WSGI (`python3 app.py` vs. `gunicorn`). Ver su propio `README.md`. No usa
+  `toolbox`: `ab` corre en la terminal del alumno.
 
 Ningún caso depende de plataformas de terceros con detección de abuso.
 
@@ -30,15 +34,15 @@ Ningún caso depende de plataformas de terceros con detección de abuso.
   `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY` antes de `docker compose up --build` — el
   `Dockerfile`/`docker-compose.yml` ya lo soportan (`ARG`/`build.args`, default vacío, no
   afecta a quien no esté detrás de un proxy). Documentado en el `README.md` de la raíz.
-- Contenido pedagógico de `crud-ataques-red/`, `crud-sqli/`: **adaptado** a "tu propia
-  terminal contra `localhost`" (completado 2026-08-11) — ya no quedan referencias a
-  `/root/setup.sh` ni a la UI de Killercoda. Se sacaron también `index.json` y
-  `assets/setup.sh` de ambas carpetas (artefactos de Killercoda sin uso acá). Reconocimiento
-  y bypass manual probados en vivo contra el stack real; `hydra` y `sqlmap` en sí (los
-  comandos no cambiaron) no se re-probaron en esta sesión por no tener esas herramientas
-  instaladas en la máquina de desarrollo usada — pendiente confirmarlo una vez con cada una
-  instalada. Detalle completo, incluido un hallazgo real de `nmap` que corrigió el paso 1 de
-  `crud-ataques-red`, en `NOTAS-DOCENTE.md`.
+- Contenido pedagógico de `crud-ataques-red/`, `crud-sqli/`: **adaptado y probado
+  end-to-end** (completado 2026-08-11) — ya no quedan referencias a `/root/setup.sh`, la UI
+  de Killercoda, ni a instalar herramientas en la máquina del alumno. Se sacaron también
+  `index.json` y `assets/setup.sh` de ambas carpetas (artefactos de Killercoda sin uso acá).
+  Todos los pasos, **incluidos `hydra` y `sqlmap`** (antes sin probar por no tener esas
+  herramientas instaladas localmente), corridos en vivo contra el stack real vía el
+  contenedor `toolbox`. Detalle completo, incluido un hallazgo real de `nmap` que corrigió el
+  paso 1 de `crud-ataques-red` y un bug real de proxy persistiendo en runtime, en
+  `NOTAS-DOCENTE.md`.
 - Visibilidad: **público** (pasado el 2026-08-10), los alumnos ya lo pueden clonar.
 
 ## Convenciones
@@ -51,6 +55,15 @@ Válidas para `crud-ataques-red/`/`crud-sqli/` (raíz del repo):
   (mecanismo nativo de la imagen oficial de MySQL, corre una sola vez).
 - La app va dockerizada acá (a diferencia de Killercoda, donde corría como proceso Python
   suelto sobre una imagen `ubuntu`) — necesario porque la máquina del alumno es heterogénea.
+- Herramientas de ataque (`nmap`/`hydra`/`sqlmap`/cliente `mysql`) van en el contenedor
+  `toolbox`, no se le pide al alumno que las instale — mismo criterio que la app dockerizada:
+  no asumir nada del sistema operativo de quien corre esto. Si se agrega una herramienta
+  nueva a una práctica futura, va ahí también, no a un requisito de instalación en el README.
+- Cualquier `Dockerfile` que reciba `ARG`/`ENV` de proxy para el build (`HTTP_PROXY` etc.)
+  tiene que **limpiarlos después** (`ENV http_proxy="" ...` antes del `CMD`) — si quedan
+  activos en runtime, herramientas como `curl`/`sqlmap`/`hydra` intentan salir por ese proxy
+  para pedidos que deberían quedarse en la red interna de Docker, y fallan. Bug real,
+  encontrado y corregido en `toolbox/Dockerfile` y `Dockerfile` — ver `NOTAS-DOCENTE.md`.
 - Antes de dar por cerrado un cambio, probar `docker compose up -d --build` de punta a
   punta, no alcanza con revisar el YAML/Dockerfile a ojo (ver
   `feedback-test-scenarios-locally` en la memoria del proyecto hermano `la-cajonera`).
