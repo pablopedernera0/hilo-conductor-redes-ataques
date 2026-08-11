@@ -9,8 +9,10 @@ Abrí [http://localhost:8888/login](http://localhost:8888/login) en tu navegador
 En el campo **Usuario** escribí:
 
 ```
-admin' --
+admin' #
 ```
+
+> En el Paso 1 y 2 usamos `--` para comentar el resto de la consulta, pero `--` en MySQL solo funciona si va seguido de un espacio — y un espacio al final de lo que tipeás a mano en un campo de formulario es invisible y fácil de olvidar. Si te falta, la consulta queda con sintaxis inválida y la app responde con un error interno (Internal Server Error) en vez del bypass. `#` comenta hasta el final de la línea sin necesitar ese espacio, así que es más seguro para escribir a mano.
 
 Dejá **Contraseña** con cualquier cosa (o vacío) y hacé click en **Ingresar**. Deberías entrar directo al listado de alumnos.
 
@@ -19,13 +21,13 @@ Dejá **Contraseña** con cualquier cosa (o vacío) y hacé click en **Ingresar*
 Cerrá sesión (**Salir**) y probá esta otra combinación en el campo **Usuario**:
 
 ```
-' OR '1'='1' --
+' OR '1'='1' #
 ```
 
 La consulta resultante es:
 
 ```sql
-SELECT id, usuario FROM usuarios WHERE usuario = '' OR '1'='1' -- ' AND password = '...'
+SELECT id, usuario FROM usuarios WHERE usuario = '' OR '1'='1' # ' AND password = '...'
 ```
 
 `'1'='1'` es siempre verdadero, así que la condición completa se cumple para **cualquier** fila de la tabla — sin necesidad de conocer ningún nombre de usuario real.
