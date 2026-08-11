@@ -80,7 +80,8 @@ docker-compose ps
 curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8888/login
 ```
 
-Si el `curl` devuelve `200`, está todo listo.
+Si el `curl` devuelve `200`, está todo listo. Con eso, arrancá con la Etapa 3 en
+[`crud-ataques-red/intro.md`](crud-ataques-red/intro.md).
 
 ## Credenciales de referencia
 
