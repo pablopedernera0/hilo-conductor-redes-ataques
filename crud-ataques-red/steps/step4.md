@@ -11,15 +11,7 @@ PhpMyAdmin (puerto 8080) también tiene un formulario de login, pero incluye un 
 `hydra` también vive en `toolbox`. La wordlist la escribimos directo dentro del contenedor (queda en `/tmp`, así que dura mientras `toolbox` siga corriendo):
 
 ```bash
-docker compose exec toolbox sh -c "cat > /tmp/wordlist.txt" << 'EOF'
-123456
-password
-admin
-qwerty
-letmein
-alumnos2024
-admin123
-EOF
+printf '123456\npassword\nadmin\nqwerty\nletmein\nalumnos2024\nadmin123\n' | docker compose exec -T toolbox sh -c "cat > /tmp/wordlist.txt"
 ```
 
 ## 4.3 — Confirmar el mensaje de error
