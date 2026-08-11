@@ -27,3 +27,7 @@ ab -V
 ```
 
 > Con estos cuatro conceptos en mente (throughput, latencia, concurrencia, tasa de error), pasá al Paso 2 para generar la primera carga real.
+
+---
+
+**← Anterior:** [README](../README.md) | **Siguiente →** [Paso 2](step2.md)

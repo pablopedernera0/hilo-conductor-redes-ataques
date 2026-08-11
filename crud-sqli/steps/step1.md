@@ -44,3 +44,7 @@ SELECT id, usuario FROM usuarios WHERE usuario = 'admin' -- ' AND password = 'lo
 En SQL, `--` (seguido de un espacio) inicia un comentario: todo lo que sigue en la línea se ignora. La verificación de la contraseña directamente **desaparece** de la consulta.
 
 > Con la teoría clara, pasá al Paso 2 para probarlo en la práctica.
+
+---
+
+**← Anterior:** [Intro](../intro.md) | **Siguiente →** [Paso 2](step2.md)

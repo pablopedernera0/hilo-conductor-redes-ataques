@@ -49,3 +49,7 @@ ps aux | grep gunicorn | grep -v grep
 Vas a ver varios procesos `gunicorn` — el master y los 4 workers.
 
 > Con esto cerramos la parte de performance. La misma infraestructura (mismas credenciales, mismos puertos expuestos) que acabás de medir es la que vamos a atacar en la próxima práctica — ver `crud-ataques-red/` en la raíz de este repo.
+
+---
+
+**← Anterior:** [Paso 4](step4.md) | **Siguiente escenario →** [crud-ataques-red](../crud-ataques-red/intro.md)

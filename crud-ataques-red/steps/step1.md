@@ -49,3 +49,7 @@ cat docker-compose.yml
 Fijate que el servicio `mysql` no tiene una sección `ports:` — nunca se publicó al host. Desde `localhost`, MySQL es invisible.
 
 > Un escaneo desde afuera del host solo ve lo que está publicado. En el Paso 2 vamos a movernos un nivel más adentro: la red interna de Docker.
+
+---
+
+**← Anterior:** [Intro](../intro.md) | **Siguiente →** [Paso 2](step2.md)

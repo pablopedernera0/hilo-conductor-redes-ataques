@@ -41,3 +41,7 @@ Con eso, cualquier comilla o `--` que mandes queda tratado como texto literal, n
 ## Próximo paso
 
 En la próxima práctica vamos a analizar, con herramientas de línea de comandos, qué evidencia dejaron en los logs cada uno de los ataques de estas dos últimas prácticas: el reconocimiento, la fuerza bruta y esta inyección SQL.
+
+---
+
+**← Anterior:** [Paso 4](steps/step4.md)

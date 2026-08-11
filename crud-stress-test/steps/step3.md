@@ -40,3 +40,7 @@ El número debería haber crecido en 200 (o cerca, si hubo alguna petición fall
 Compará el `Requests per second` de esta corrida contra el de `resultado-lectura.txt`. Vas a ver un throughput bastante menor: cada escritura le suma a la app el costo de un `INSERT` y un `commit` contra MySQL, mientras que la lectura solo hace un `SELECT`.
 
 > Guardate mentalmente esta diferencia — en el Paso 4 vamos a llevar la app a su límite real.
+
+---
+
+**← Anterior:** [Paso 2](step2.md) | **Siguiente →** [Paso 4](step4.md)

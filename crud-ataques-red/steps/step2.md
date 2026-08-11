@@ -41,3 +41,7 @@ Esta vez sí aparece **abierto**, con el servicio identificado como `mysql`.
 Que un puerto no esté publicado al host **no es lo mismo** que estar protegido. Si un atacante logra ejecutar comandos dentro de la misma red (por ejemplo, comprometiendo cualquiera de los otros contenedores, o —como en nuestro caso— con acceso a la terminal del host), el servicio "interno" queda tan expuesto como cualquier otro.
 
 > Ya sabemos que MySQL está ahí y qué versión corre. En el Paso 3 vamos a ver si podemos entrar.
+
+---
+
+**← Anterior:** [Paso 1](step1.md) | **Siguiente →** [Paso 3](step3.md)

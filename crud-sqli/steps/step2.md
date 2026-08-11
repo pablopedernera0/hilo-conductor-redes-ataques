@@ -39,3 +39,7 @@ docker compose exec toolbox curl -s -b /tmp/cookies-sqli.txt -o /dev/null -w "%{
 Fijate que en ningún momento usamos `admin123` (la contraseña real). El payload no adivinó la contraseña — hizo que la consulta dejara de comprobarla.
 
 > En el Paso 3 vamos a probarlo desde el navegador y ver una variante que ni siquiera necesita saber que el usuario `admin` existe.
+
+---
+
+**← Anterior:** [Paso 1](step1.md) | **Siguiente →** [Paso 3](step3.md)

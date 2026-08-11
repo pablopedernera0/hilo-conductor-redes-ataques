@@ -39,3 +39,7 @@ ab -n 500 -c 20 http://127.0.0.1:8888/ | tee resultado-lectura.txt | grep -E "Re
 Anotá (o dejá este archivo guardado) el valor de `Requests per second` y `Failed requests` — lo vamos a comparar contra los próximos pasos.
 
 > Si `Failed requests` dio `0`, la app soportó esta carga sin problema. Vamos a subir la vara en los próximos pasos.
+
+---
+
+**← Anterior:** [Paso 1](step1.md) | **Siguiente →** [Paso 3](step3.md)

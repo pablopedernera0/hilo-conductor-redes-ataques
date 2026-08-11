@@ -41,3 +41,7 @@ Con `hydra` (práctica anterior) tuvimos que probar contraseñas una por una has
 - Funciona aunque el sistema tenga bloqueo de cuenta tras varios intentos fallidos, porque técnicamente es **un único intento exitoso**
 
 > En el Paso 4 vamos a automatizar todo esto con una herramienta hecha específicamente para encontrar y explotar este tipo de vulnerabilidades: `sqlmap`.
+
+---
+
+**← Anterior:** [Paso 2](step2.md) | **Siguiente →** [Paso 4](step4.md)

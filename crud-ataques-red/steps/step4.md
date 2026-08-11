@@ -45,3 +45,7 @@ docker compose exec toolbox hydra -l admin -P /tmp/wordlist.txt app -s 8888 \
 Encontró la contraseña probando cada palabra de la wordlist, sin conocer el código ni la base de datos.
 
 > Con reconocimiento (nmap), credenciales filtradas y fuerza bruta ya tenemos tres formas distintas de comprometer esta infraestructura. En la próxima práctica vamos a ver una cuarta: una inyección SQL en el login que ni siquiera necesita una wordlist.
+
+---
+
+**← Anterior:** [Paso 3](step3.md) | **Siguiente →** [Cierre](../finish.md)

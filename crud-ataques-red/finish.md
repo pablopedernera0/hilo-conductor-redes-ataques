@@ -35,3 +35,7 @@ Todos los comandos de `nmap`/`hydra`/`mysql` van con el prefijo `docker compose 
 ## Próximo paso
 
 En la próxima práctica vamos a explotar una vulnerabilidad puntual en la forma en que `/login` arma su consulta SQL: **inyección SQL**, manual y con `sqlmap`. A diferencia de la fuerza bruta, no va a hacer falta adivinar ninguna contraseña.
+
+---
+
+**← Anterior:** [Paso 4](steps/step4.md) | **Siguiente escenario →** [crud-sqli](../crud-sqli/intro.md)

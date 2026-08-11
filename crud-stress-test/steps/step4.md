@@ -43,3 +43,7 @@ ps aux | grep "app.py" | grep -v grep
 Vas a ver un único proceso Python atendiendo todo el tráfico.
 
 > Este es exactamente el motivo por el que ningún framework recomienda `app.run()` en producción. En el Paso 5 vamos a levantar la misma app con un servidor que sí está pensado para esto.
+
+---
+
+**← Anterior:** [Paso 3](step3.md) | **Siguiente →** [Paso 5](step5.md)

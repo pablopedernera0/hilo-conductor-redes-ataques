@@ -45,3 +45,7 @@ docker compose exec toolbox sqlmap -u "http://app:8888/login" \
 | `sqlmap --dump` | Nada — sqlmap detecta y explota solo | El contenido completo de la tabla, todos los usuarios y contraseñas |
 
 > Con reconocimiento, fuerza bruta e inyección SQL (manual y automatizada) ya cubriste las técnicas de ataque más comunes contra una aplicación web. En la próxima práctica vamos a mirar todo esto desde el otro lado: qué queda registrado en los logs de cada uno de estos ataques.
+
+---
+
+**← Anterior:** [Paso 3](step3.md) | **Siguiente →** [Cierre](../finish.md)

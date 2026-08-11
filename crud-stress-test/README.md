@@ -54,3 +54,7 @@ Debería devolver `200`.
 ## 3. Guía paso a paso
 
 Seguí `steps/step1.md` a `steps/step5.md` en orden.
+
+---
+
+**Siguiente →** [Paso 1](steps/step1.md)

@@ -35,3 +35,7 @@ Con la contraseña de MySQL en la mano, la tabla `usuarios` —contraseñas en t
 Un secreto hardcodeado en el código es un secreto que viaja con cada `git clone`, cada fork, cada backup del repositorio. No importa cuán "interno" parezca el servicio que protege: si la credencial es pública, el servicio también lo es.
 
 > Ya tenemos acceso directo a la base. En el Paso 4 vamos a atacar el login de la app en sí, sin pasar por MySQL, usando fuerza bruta.
+
+---
+
+**← Anterior:** [Paso 2](step2.md) | **Siguiente →** [Paso 4](step4.md)
