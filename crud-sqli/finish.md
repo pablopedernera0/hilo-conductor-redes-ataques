@@ -38,6 +38,15 @@ cur.execute(query, (usuario, password))
 
 Con eso, cualquier comilla o `--` que mandes queda tratado como texto literal, no como parte del SQL.
 
+## 📮 Antes de seguir: mini-reporte de la etapa
+
+Mandanos un mensaje corto (mail al docente o la plataforma de la materia) con:
+
+1. La salida de tu bypass manual (por ejemplo `curl --data-urlencode "usuario=admin' -- "` u otra variante que hayas probado).
+2. En 2-3 líneas: ¿por qué una consulta armada con f-string es vulnerable y una parametrizada no, si en los dos casos el usuario puede escribir lo que quiera en el formulario?
+
+No suma nota — es un checkpoint para confirmar que la etapa quedó entendida antes de pasar a la siguiente.
+
 ## Próximo paso
 
 En la próxima práctica vamos a analizar, con herramientas de línea de comandos, qué evidencia dejaron en los logs cada uno de los ataques de estas dos últimas prácticas: el reconocimiento, la fuerza bruta y esta inyección SQL.

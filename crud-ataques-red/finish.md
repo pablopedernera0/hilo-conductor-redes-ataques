@@ -32,6 +32,15 @@ Todos los comandos de `nmap`/`hydra`/`mysql` van con el prefijo `docker compose 
 
 **Fuerza bruta** — probar sistemáticamente combinaciones de credenciales contra un servicio, hasta encontrar una válida. Se frena con rate-limiting, bloqueo de cuenta, CAPTCHA o tokens anti-CSRF.
 
+## 📮 Antes de seguir: mini-reporte de la etapa
+
+Mandanos un mensaje corto (mail al docente o la plataforma de la materia) con:
+
+1. La salida de `nmap -p 3306 localhost` (cerrado) y la del mismo escaneo contra la IP interna del contenedor de MySQL (abierto).
+2. En 2-3 líneas: ¿por qué un servicio no publicado al host, como MySQL en este caso, puede seguir siendo un riesgo real?
+
+No suma nota — es un checkpoint para confirmar que la etapa quedó entendida antes de pasar a la siguiente.
+
 ## Próximo paso
 
 En la próxima práctica vamos a explotar una vulnerabilidad puntual en la forma en que `/login` arma su consulta SQL: **inyección SQL**, manual y con `sqlmap`. A diferencia de la fuerza bruta, no va a hacer falta adivinar ninguna contraseña.
