@@ -5,7 +5,7 @@ Hasta ahora la app respondió sin errores. Vamos a subir la concurrencia hasta e
 ## 4.1 — Subir la apuesta
 
 ```bash
-ab -n 2000 -c 100 http://127.0.0.1:8888/
+docker compose exec abtool ab -n 2000 -c 100 http://host.docker.internal:8888/
 ```
 
 Prestá atención a `Failed requests` y a si el comando tarda mucho más de lo esperado en terminar.
@@ -13,7 +13,7 @@ Prestá atención a `Failed requests` y a si el comando tarda mucho más de lo e
 ## 4.2 — Si no falló todavía, subí más
 
 ```bash
-ab -n 3000 -c 200 -s 5 http://127.0.0.1:8888/
+docker compose exec abtool ab -n 3000 -c 200 -s 5 http://host.docker.internal:8888/
 ```
 
 El flag `-s 5` le pone un timeout de 5 segundos por petición — a esta concurrencia es esperable ver `Failed requests` mayor a `0` o directamente errores de conexión.

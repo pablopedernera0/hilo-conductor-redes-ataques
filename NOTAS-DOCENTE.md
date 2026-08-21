@@ -222,6 +222,50 @@ pruebas anteriores (todos corregidos, commiteados y pusheados):
 Con esto, el hilo conductor completo (las 6 etapas) queda confirmado en vivo, no solo por
 comandos verificados sueltos sino por el recorrido real de un alumno.
 
+## 2026-08-20/21 — bug real de colisión de puertos + reestructuración a `entorno-ataques/`
+
+Pablo dio la clase de stress test (2026-08-20): la práctica en general salió bien, pero el
+Paso 3 (carga de escritura con `ab`) mostraba `Failed requests: 0` en `ab` y sin embargo el
+conteo de `alumnos.alumnos` se quedaba pegado en el valor semilla (5, a veces 6) en vez de
+crecer en 200. Se investigó y reprodujo en vivo:
+
+- **Causa raíz**: si el entorno de Etapas 3/4 (antes suelto en la raíz, `docker-compose up`)
+  queda corriendo al mismo tiempo que la Etapa 1, ambos compiten por el puerto 8888. La app
+  dockerizada de Etapas 3/4 (con login) puede terminar quedándose con el puerto; el `POST` de
+  `ab` contra `/nuevo` le pega a esa app en vez de a la de la Etapa 1, que redirige a `/login`
+  (302) — `ab` no cuenta redirects/4xx/5xx como "Failed requests" (solo fallas de transporte),
+  así que el problema queda completamente invisible en su output. El endpoint `/nuevo` de la
+  app correcta *también* devuelve 302 en éxito, así que "mirar si hay `Non-2xx responses`" no
+  sirve como señal — se descartó esa idea de fix antes de documentarla, después de probarla.
+- **Segunda manifestación del mismo problema**: con ambos entornos arriba, `docker ps -qf
+  "name=mysql"` (usado en `crud-ataques-red/steps/step2.md`) matchea por substring y puede
+  agarrar el contenedor de MySQL equivocado — mismo bug de colisión por nombre que ya estaba
+  documentado para el `mysqld-exporter` de la Etapa 6 en `la-cajonera`. Se confirmó que esto
+  fue lo que pasó en una sesión de prueba anterior: la IP de MySQL de Etapas 3/4
+  (`172.31.0.3`) había terminado hardcodeada, sin commitear, en el `app.py` de una carpeta de
+  pruebas de la Etapa 1.
+- **Validación de las 6 etapas completas, de nuevo, en un entorno realmente limpio** (se
+  bajaron todos los contenedores/procesos sueltos de sesiones de prueba anteriores antes de
+  arrancar): Etapa 1 con `ab` real (5→205 alumnos, dev server 160 req/s vs. Gunicorn 422
+  req/s con la misma carga, 0 fallos en ambos — la app rápida de esta máquina no llegó a
+  romperse ni con `-c 200`, la comparación de throughput igual deja clara la diferencia),
+  Etapa 3 (nmap, credenciales, hydra) y Etapa 4 (bypass manual, `sqlmap --batch`/`--dbs`/
+  `--dump`) — todo confirmado end-to-end, sin excepciones.
+- **Hallazgo aparte, no relacionado con el bug de arriba**: `docker-compose` (con guion, v1)
+  no existe en esta máquina de desarrollo — solo el plugin `docker compose` (v2). Es lo que
+  trae cualquier instalación moderna de Docker Desktop (Windows/Mac). Todo el repo usaba la
+  sintaxis vieja (`docker-compose up`, etc.); se corrigió a `docker compose` en todos los
+  archivos.
+- **Reestructuración**: a partir de esto, y de que Pablo señaló por separado que arrancar una
+  app desde la raíz del repo y después otra desde una subcarpeta ya era confuso de por sí, se
+  movió la infraestructura suelta de Etapas 3/4 (`docker-compose.yml`, `Dockerfile`,
+  `init.sql`, `toolbox/`) de la raíz a su propia carpeta, `entorno-ataques/` — mismo patrón
+  autocontenido que ya tenía `crud-stress-test/`. `crud-ataques-red/` y `crud-sqli/` (solo
+  contenido) se quedan donde estaban; sus pasos que decían "corrido desde la raíz de este
+  repo" ahora dicen "desde `entorno-ataques/`". Se agregó una advertencia explícita en ambos
+  README (`crud-stress-test/README.md` y el de la raíz) de no dejar los dos entornos
+  corriendo a la vez, con el comando para bajar el que no se esté usando.
+
 ## Diferencias con la versión de Killercoda
 
 - La app (`crud-python`, branch `feature-login`) corre **dockerizada** acá (`Dockerfile`

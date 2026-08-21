@@ -25,10 +25,12 @@ Dejá esta terminal abierta y abrí otra para seguir.
 curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8889/
 ```
 
+(Este `curl` corre en tu propia terminal, contra el puerto que Gunicorn publicó en el host — no hace falta pasar por `abtool` acá.)
+
 ## 5.4 — Repetir la prueba que rompió la app en el Paso 4
 
 ```bash
-ab -n 3000 -c 200 -s 5 http://127.0.0.1:8889/
+docker compose exec abtool ab -n 3000 -c 200 -s 5 http://host.docker.internal:8889/
 ```
 
 ## 5.5 — Comparar

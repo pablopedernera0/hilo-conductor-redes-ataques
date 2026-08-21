@@ -14,16 +14,21 @@ Bench) contra la app CRUD, comparando el servidor de desarrollo de Flask contra 
 
 - [Docker](https://docs.docker.com/get-docker/) y Docker Compose.
 - `git`.
-- Apache Bench (`ab`): paquete `apache2-utils` en Debian/Ubuntu, `httpd` en macOS
-  (`brew install httpd`).
 - Python 3 con `pip`.
+
+`ab` (Apache Bench) **no** hace falta instalarlo en tu máquina — viene en el contenedor
+`abtool` (se levanta solo con el resto del `docker compose up`), igual que `nmap`/`hydra`/
+`sqlmap` en las prácticas de ataques. Los comandos de `ab` de esta guía van con el prefijo
+`docker compose exec abtool ab ...`, apuntando a `host.docker.internal` (así es como un
+contenedor se refiere a la máquina que lo hostea) en vez de `127.0.0.1`, porque la app corre
+suelta en tu máquina, no en un contenedor.
 
 ## 1. Levantar MySQL y PhpMyAdmin
 
 ```bash
 git clone https://github.com/pablopedernera0/hilo-conductor-redes-ataques.git
 cd hilo-conductor-redes-ataques/crud-stress-test
-docker-compose up -d
+docker compose up -d
 ```
 
 Esto crea la base `alumnos` con 5 registros semilla y deja PhpMyAdmin en
@@ -31,6 +36,12 @@ http://localhost:8080. A diferencia del resto del repo, acá MySQL sí se expone
 (`localhost:3306`) — la app de esta etapa corre como **proceso suelto en tu máquina**, no
 dockerizada, porque el ejercicio depende de poder matarla y reiniciarla con otro servidor
 WSGI sin tocar contenedores.
+
+> **No dejes `entorno-ataques/` (Etapas 3 y 4) corriendo al mismo tiempo que esto.** Los dos
+> entornos usan el puerto 8888, y ese también usa el 3306 (MySQL). Si ambos están arriba a la
+> vez, el tráfico de esta etapa puede terminar pegándole a la app equivocada sin ningún error
+> visible — si venís de la otra práctica, corré `docker compose down` en `entorno-ataques/`
+> antes de seguir.
 
 ## 2. Levantar la app CRUD
 

@@ -4,7 +4,7 @@ Antes de atacar cualquier cosa, un atacante (o un pentester autorizado) empieza 
 
 ## 1.1 — Escaneo básico de puertos
 
-`nmap` no está instalado en tu máquina — vive en el contenedor `toolbox`, que ya se levantó con el resto del `docker-compose up`. Le apuntamos a `host.docker.internal`, el nombre que Docker usa desde adentro de un contenedor para referirse a la máquina que lo hostea (así vemos lo mismo que vería alguien atacando desde afuera del stack):
+`nmap` no está instalado en tu máquina — vive en el contenedor `toolbox`, que ya se levantó con el resto del `docker compose up`. Le apuntamos a `host.docker.internal`, el nombre que Docker usa desde adentro de un contenedor para referirse a la máquina que lo hostea (así vemos lo mismo que vería alguien atacando desde afuera del stack):
 
 ```bash
 docker compose exec toolbox nmap host.docker.internal
@@ -40,7 +40,7 @@ Ahí sí aparece sin ambigüedad: `Server: Werkzeug/... Python/...` — el servi
 docker compose exec toolbox nmap -p 3306 host.docker.internal
 ```
 
-Va a aparecer como `closed`. Repasá el `docker-compose.yml` de la raíz del repo:
+Va a aparecer como `closed`. Repasá el `docker-compose.yml` de `entorno-ataques/`:
 
 ```bash
 cat docker-compose.yml

@@ -4,16 +4,16 @@ Leer datos (`SELECT`) es barato. Escribir datos (`INSERT`) implica un lock más 
 
 ## 3.1 — Preparar el body de la petición
 
-`ab` necesita el body en un archivo aparte para peticiones `POST`:
+`ab` necesita el body en un archivo aparte para peticiones `POST`. Como `ab` corre dentro del contenedor `abtool`, escribimos el archivo directo ahí (queda en `/tmp`, dura mientras `abtool` siga corriendo):
 
 ```bash
-printf 'nombre=Carga&apellido=DeTest&fecha_nacimiento=2000-01-01' > post-data.txt
+printf 'nombre=Carga&apellido=DeTest&fecha_nacimiento=2000-01-01' | docker compose exec -T abtool sh -c "cat > /tmp/post-data.txt"
 ```
 
 ## 3.2 — Contar los alumnos antes de la prueba
 
 ```bash
-docker-compose exec mysql mysql -uroot -pmysecretpassword -N -e "SELECT COUNT(*) FROM alumnos.alumnos;"
+docker compose exec mysql mysql -uroot -pmysecretpassword -N -e "SELECT COUNT(*) FROM alumnos.alumnos;"
 ```
 
 (Corré este comando desde `hilo-conductor-redes-ataques/crud-stress-test/`, donde está el `docker-compose.yml` de esta etapa.)
@@ -21,8 +21,8 @@ docker-compose exec mysql mysql -uroot -pmysecretpassword -N -e "SELECT COUNT(*)
 ## 3.3 — Generar la carga de escritura
 
 ```bash
-ab -n 200 -c 10 -p post-data.txt -T application/x-www-form-urlencoded \
-  http://127.0.0.1:8888/nuevo
+docker compose exec abtool ab -n 200 -c 10 -p /tmp/post-data.txt -T application/x-www-form-urlencoded \
+  http://host.docker.internal:8888/nuevo
 ```
 
 Usamos menos peticiones y menos concurrencia que en el Paso 2 a propósito — ya vas a ver por qué.
@@ -30,7 +30,7 @@ Usamos menos peticiones y menos concurrencia que en el Paso 2 a propósito — y
 ## 3.4 — Contar los alumnos después
 
 ```bash
-docker-compose exec mysql mysql -uroot -pmysecretpassword -N -e "SELECT COUNT(*) FROM alumnos.alumnos;"
+docker compose exec mysql mysql -uroot -pmysecretpassword -N -e "SELECT COUNT(*) FROM alumnos.alumnos;"
 ```
 
 El número debería haber crecido en 200 (o cerca, si hubo alguna petición fallida).

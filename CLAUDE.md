@@ -10,8 +10,8 @@ incidente en `NOTAS-DOCENTE.md`.
 
 **Este repo reemplaza Killercoda para estas tres etapas**, cada una con su propio entorno:
 
-- `crud-ataques-red/` y `crud-sqli/` comparten el `docker-compose.yml`/`Dockerfile` de la
-  raíz: MySQL + PhpMyAdmin + la app CRUD dockerizada (branch `feature-login` de
+- `crud-ataques-red/` y `crud-sqli/` comparten el `docker-compose.yml`/`Dockerfile` de
+  `entorno-ataques/`: MySQL + PhpMyAdmin + la app CRUD dockerizada (branch `feature-login` de
   [`pablopedernera0/crud-python`](https://github.com/pablopedernera0/crud-python)) +
   `toolbox` (`toolbox/Dockerfile`: `nmap`/`hydra`/`sqlmap`/cliente `mysql`, en la misma red
   interna, se queda esperando comandos con `docker compose exec toolbox <comando>`) — así el
@@ -28,12 +28,17 @@ Ningún caso depende de plataformas de terceros con detección de abuso.
 
 - `crud-stress-test/`: **armado, adaptado y probado end-to-end** (compose up, app bare,
   `ab` real, dev server vs. Gunicorn) — confirmado funcionando de punta a punta.
-- Entorno de `crud-ataques-red`/`crud-sqli` (raíz del repo): **armado y probado
+- Entorno de `crud-ataques-red`/`crud-sqli` (`entorno-ataques/`): **armado y probado
   end-to-end** (2026-08-11). El build de la imagen `app` necesita salir a internet
   (`git clone`/`apt-get`); en redes con proxy corporativo hace falta exportar
   `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY` antes de `docker compose up --build` — el
   `Dockerfile`/`docker-compose.yml` ya lo soportan (`ARG`/`build.args`, default vacío, no
   afecta a quien no esté detrás de un proxy). Documentado en el `README.md` de la raíz.
+  **2026-08-20/21: la infraestructura suelta (`docker-compose.yml`, `Dockerfile`, `init.sql`,
+  `toolbox/`) se mudó de la raíz del repo a su propia carpeta, `entorno-ataques/`** — mismo
+  patrón autocontenido que `crud-stress-test/`. Motivo: un `docker-compose.yml` suelto al
+  lado de dos carpetas de contenido invitaba a confundirlo con "el compose de todo el repo",
+  y de hecho causó un bug real (ver más abajo, "colisión de puertos").
 - Contenido pedagógico de `crud-ataques-red/`, `crud-sqli/`: **adaptado y probado
   end-to-end** (completado 2026-08-11) — ya no quedan referencias a `/root/setup.sh`, la UI
   de Killercoda, ni a instalar herramientas en la máquina del alumno. Se sacaron también
@@ -47,7 +52,17 @@ Ningún caso depende de plataformas de terceros con detección de abuso.
 
 ## Convenciones
 
-Válidas para `crud-ataques-red/`/`crud-sqli/` (raíz del repo):
+**Nunca corras `entorno-ataques/` y `crud-stress-test/` al mismo tiempo.** Comparten el
+puerto 8888 (y `crud-stress-test/` también expone MySQL en el 3306) — si ambos entornos están
+arriba a la vez, el tráfico de uno puede terminar pegándole a la app del otro sin ningún error
+visible (un `POST` que "funciona" según `ab`/`curl` pero nunca llega a la base correcta), y
+comandos con `docker ps -qf "name=mysql"` o `"name=app"` pueden matchear el contenedor
+equivocado por substring (mismo bug de colisión por nombre que ya estaba documentado para el
+`mysqld-exporter` de la Etapa 6 en `la-cajonera`). Bug real, reproducido en vivo el
+2026-08-20/21 — ver `NOTAS-DOCENTE.md`. Antes de levantar uno, bajar el otro con `docker compose down` desde su propia carpeta —
+cada entorno tiene su propio `docker-compose.yml` independiente.
+
+Válidas para `crud-ataques-red/`/`crud-sqli/` (`entorno-ataques/`):
 
 - MySQL se referencia por **nombre de servicio** (`mysql`), no por IP + `sed` como en la
   versión de Killercoda — Docker Compose resuelve el nombre por DNS interno.
