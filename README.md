@@ -8,101 +8,34 @@ para correr **en tu propia computadora** con Docker — no en Killercoda.
 > en tu propia computadora. Las mismas técnicas contra un sistema que no es tuyo, sin
 > autorización explícita, son un delito.
 
-Este repo tiene **dos entornos independientes**, uno por cada etapa que Killercoda no
-permite:
+Este repo tiene **dos entornos independientes**, cada uno autocontenido en su propia carpeta
+con su propio `README.md` — no corras los dos al mismo tiempo, comparten el puerto 8888:
 
-| Etapa | Carpeta | Por qué está acá |
-|---|---|---|
-| 1 — Stress test | [`crud-stress-test/`](crud-stress-test/) | `ab` (network stress tool) |
-| 3 — Reconocimiento y fuerza bruta | `crud-ataques-red/` | `nmap` (security scanner), `hydra` (bruteforce) |
-| 4 — SQLi | `crud-sqli/` | `sqlmap` (hacker-tool) |
+| Etapa | Carpeta | Entorno | Por qué está acá |
+|---|---|---|---|
+| 1 — Stress test | [`crud-stress-test/`](crud-stress-test/) | [su propio `README.md`](crud-stress-test/README.md) | `ab` (network stress tool) |
+| 3 — Reconocimiento y fuerza bruta | [`crud-ataques-red/`](crud-ataques-red/) | [`entorno-ataques/`](entorno-ataques/README.md) | `nmap` (security scanner), `hydra` (bruteforce) |
+| 4 — SQLi | [`crud-sqli/`](crud-sqli/) | [`entorno-ataques/`](entorno-ataques/README.md) | `sqlmap` (hacker-tool) |
 
-Las Etapas 3 y 4 comparten la infraestructura de [`entorno-ataques/`](entorno-ataques/)
-(`docker-compose.yml` + `Dockerfile`, más abajo) y usan el contenedor `toolbox` para las
-herramientas de ataque. La Etapa 1 **no usa nada de eso**: tiene su propio entorno en
-`crud-stress-test/`, corre `ab` en tu propia terminal (no en un contenedor) y no depende de
-`entorno-ataques/`. Es importante tenerlo claro antes de seguir leyendo, porque el resto de
-este README (el contenedor `toolbox`, el `docker compose up` de acá abajo) es **solo para las
-Etapas 3 y 4**.
+## ¿Por dónde empiezo?
 
-## Etapa 1 — Stress test (`ab`)
+Si es tu primera práctica de este repo, andá directo al `README.md` de la etapa que te
+corresponda (tabla de arriba) — cada uno tiene sus propios requisitos y su guía de arranque.
+Las Etapas 3 y 4 comparten infraestructura (`entorno-ataques/`); la Etapa 1 tiene la suya
+propia, completamente separada.
 
-Si es tu primera práctica de este repo, **empezá por acá y no leas el resto de este README
-todavía** — el resto describe el entorno de las Etapas 3 y 4 (`toolbox`, `entorno-ataques/`),
-que no aplica a la Etapa 1.
+## Qué hay acá
 
-Instrucciones completas, requisitos y guía paso a paso en
-[`crud-stress-test/README.md`](crud-stress-test/README.md).
+- [`crud-stress-test/`](crud-stress-test/) — entorno (proceso suelto + Docker Compose propio,
+  `ab` dockerizado) y contenido (carga real con `ab`, dev server vs. Gunicorn) de la Etapa 1.
+- [`entorno-ataques/`](entorno-ataques/) — infraestructura compartida de las Etapas 3 y 4
+  (MySQL, PhpMyAdmin, app con login, contenedor `toolbox` con nmap/hydra/sqlmap/mysql).
+- [`crud-ataques-red/`](crud-ataques-red/), [`crud-sqli/`](crud-sqli/) — contenido de las
+  Etapas 3 y 4 (reconocimiento, credenciales filtradas, fuerza bruta, inyección SQL manual y
+  automatizada), corren contra `entorno-ataques/`. Todos los pasos, incluidos `hydra` y
+  `sqlmap`, se probaron en vivo contra el stack real — ver `NOTAS-DOCENTE.md` para el detalle.
 
-## Etapas 3 y 4 — Reconocimiento, fuerza bruta y SQLi
-
-### Requisitos
-
-- [Docker](https://docs.docker.com/get-docker/) y Docker Compose instalados (Docker Desktop
-  en Windows/Mac ya los trae juntos).
-- `git`.
-
-Nada más. `nmap`, `hydra`, `sqlmap` y un cliente de `mysql` **no** hace falta instalarlos en
-tu máquina — vienen empaquetados en el contenedor `toolbox` (ver más abajo), que se levanta
-solo con el resto del `docker compose up`.
-
-> **No dejes `crud-stress-test/` corriendo al mismo tiempo.** Los dos entornos usan el mismo
-> puerto 8888 (y `crud-stress-test/` también expone MySQL en el 3306). Si ambos están arriba
-> a la vez, el tráfico de uno puede terminar pegándole a la app del otro sin ningún error
-> visible — antes de arrancar esto, andá a `crud-stress-test/` y corré `docker compose down`.
-
-Si estás detrás de un proxy corporativo, exportá `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY` antes
-de levantar el entorno (o ponelos en un archivo `.env` dentro de `entorno-ataques/`, `docker
-compose` los toma solo) — los `Dockerfile` de `app` y `toolbox` los usan para poder salir a
-internet (clonar código, `apt-get`) durante el build. No quedan activos en los contenedores
-ya corriendo, así que no interfieren con los ataques en sí.
-
-### Atacar desde el contenedor `toolbox`
-
-Las Etapas 3 y 4 necesitan herramientas que Killercoda prohíbe por categoría (ver el
-incidente al principio de este README) y que tampoco tiene sentido pedirle a cada alumno que
-instale a mano, distinto según el sistema operativo. Por eso viven en un contenedor aparte,
-`toolbox` (`nmap`, `hydra`, `sqlmap`, cliente `mysql`, `curl`), conectado a la misma red
-interna que `app`/`mysql`/`phpmyadmin`. Se levanta con el resto del `docker compose up` y se
-queda esperando (no expone nada, no hace falta entrar a una terminal interactiva) — cada paso
-de la práctica le manda un comando puntual con:
-
-```bash
-docker compose exec toolbox <comando>
-```
-
-corrido desde `entorno-ataques/`. Por ejemplo, para escanear los puertos publicados al host:
-`docker compose exec toolbox nmap -sV -p 8080,8888 host.docker.internal`
-(`host.docker.internal` es cómo un contenedor se refiere a la máquina que lo hostea).
-
-### Cómo arrancar
-
-```bash
-git clone https://github.com/pablopedernera0/hilo-conductor-redes-ataques.git
-cd hilo-conductor-redes-ataques/entorno-ataques
-docker compose up -d
-```
-
-La primera vez tarda un par de minutos (baja las imágenes y arma la app). Cuando termine,
-vas a tener:
-
-| Servicio | Dónde | Para qué |
-|---|---|---|
-| App CRUD (con login) | http://localhost:8888 | La aplicación que vamos a atacar |
-| PhpMyAdmin | http://localhost:8080 | Administrar la base de datos directamente |
-| MySQL | interno (no expuesto al host) | Motor de base de datos |
-
-**Verificar que levantó todo:**
-
-```bash
-docker compose ps
-curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8888/login
-```
-
-Si el `curl` devuelve `200`, está todo listo. Con eso, arrancá con la Etapa 3 en
-[`crud-ataques-red/intro.md`](crud-ataques-red/intro.md).
-
-### Credenciales de referencia
+## Credenciales de referencia (Etapas 3 y 4)
 
 | Qué | Usuario | Contraseña |
 |---|---|---|
@@ -111,33 +44,3 @@ Si el `curl` devuelve `200`, está todo listo. Con eso, arrancá con la Etapa 3 
 
 (Estas mismas credenciales están hardcodeadas en el código de la app — parte del punto de
 las prácticas es encontrarlas ahí.)
-
-### Apagar el entorno
-
-```bash
-docker compose down       # apaga los contenedores, conserva los datos
-docker compose down -v    # apaga y borra los datos (para arrancar de cero)
-```
-
-## Qué hay acá
-
-- `entorno-ataques/` — toda la infraestructura de las Etapas 3 y 4, autocontenida (mismo
-  patrón que `crud-stress-test/`):
-  - `docker-compose.yml` — MySQL + PhpMyAdmin + la app (se construye desde `Dockerfile`) +
-    `toolbox` (nmap/hydra/sqlmap/mysql, se construye desde `toolbox/Dockerfile`).
-  - `Dockerfile` — clona `crud-python` (branch `feature-login`) y la deja lista para correr.
-  - `toolbox/Dockerfile` — imagen con `nmap`, `hydra`, `sqlmap` (clonado del repo oficial,
-    es Python puro) y cliente `mysql`, conectada a la misma red interna. Se queda corriendo
-    en espera (`sleep infinity`); los pasos de la práctica le mandan comandos con `docker
-    compose exec toolbox <comando>`.
-  - `init.sql` — crea y siembra las tablas `alumnos` y `usuarios` la primera vez que arranca
-    MySQL.
-- `crud-ataques-red/`, `crud-sqli/` — contenido de las prácticas (reconocimiento con nmap,
-  fuerza bruta con hydra, inyección SQL manual y con sqlmap), corren contra `entorno-ataques/`
-  usando `toolbox` en vez de herramientas instaladas en la máquina del alumno. Todos los
-  pasos, incluidos `hydra` y `sqlmap`, se probaron en vivo contra el stack real — ver
-  `NOTAS-DOCENTE.md` para el detalle.
-- `crud-stress-test/` — entorno y contenido de la Etapa 1 (carga real con `ab`, dev server
-  vs. Gunicorn), ya adaptado a "tu propia terminal contra `localhost`" — ver su propio
-  `README.md` para arrancarlo, es independiente de `entorno-ataques/`. No usa `toolbox`:
-  `ab` corre en la terminal del alumno, no dentro de un contenedor.

@@ -19,7 +19,7 @@ Al finalizar esta práctica vas a haber:
 
 ## Preparar el entorno
 
-Si todavía no lo hiciste, levantá la infraestructura siguiendo el `README.md` de la raíz de este repo: `docker compose up -d --build` desde `hilo-conductor-redes-ataques/entorno-ataques/`. **Corré todos los comandos de esta práctica desde esa carpeta** (`entorno-ataques/`) — es la misma infraestructura de la práctica anterior, incluido el contenedor `toolbox`, que ya trae `sqlmap` (no hace falta instalarlo en tu máquina).
+Si todavía no lo hiciste, levantá la infraestructura siguiendo el [`README.md` de `entorno-ataques/`](../entorno-ataques/README.md): `docker compose up -d --build` desde `hilo-conductor-redes-ataques/entorno-ataques/`. **Corré todos los comandos de esta práctica desde esa carpeta** (`entorno-ataques/`) — es la misma infraestructura de la práctica anterior, incluido el contenedor `toolbox`, que ya trae `sqlmap` (no hace falta instalarlo en tu máquina).
 
 Verificá que la app responde antes de seguir:
 

@@ -33,7 +33,8 @@ Ningún caso depende de plataformas de terceros con detección de abuso.
   (`git clone`/`apt-get`); en redes con proxy corporativo hace falta exportar
   `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY` antes de `docker compose up --build` — el
   `Dockerfile`/`docker-compose.yml` ya lo soportan (`ARG`/`build.args`, default vacío, no
-  afecta a quien no esté detrás de un proxy). Documentado en el `README.md` de la raíz.
+  afecta a quien no esté detrás de un proxy). Documentado en el `README.md` de
+  `entorno-ataques/`.
   **2026-08-20/21: la infraestructura suelta (`docker-compose.yml`, `Dockerfile`, `init.sql`,
   `toolbox/`) se mudó de la raíz del repo a su propia carpeta, `entorno-ataques/`** — mismo
   patrón autocontenido que `crud-stress-test/`. Motivo: un `docker-compose.yml` suelto al

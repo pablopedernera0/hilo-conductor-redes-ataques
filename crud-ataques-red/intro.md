@@ -15,7 +15,7 @@ Al finalizar esta práctica vas a haber:
 
 ## Preparar el entorno
 
-Si todavía no lo hiciste, levantá la infraestructura siguiendo el `README.md` de la raíz de este repo: `docker compose up -d --build` desde `hilo-conductor-redes-ataques/entorno-ataques/`. **Corré todos los comandos de esta práctica desde esa carpeta** (`entorno-ataques/`), no hace falta moverte a esta.
+Si todavía no lo hiciste, levantá la infraestructura siguiendo el [`README.md` de `entorno-ataques/`](../entorno-ataques/README.md): `docker compose up -d --build` desde `hilo-conductor-redes-ataques/entorno-ataques/`. **Corré todos los comandos de esta práctica desde esa carpeta** (`entorno-ataques/`), no hace falta moverte a esta.
 
 `nmap` y `hydra` no hace falta instalarlos en tu máquina — vienen en un contenedor aparte (`toolbox`) que ya se levantó con el resto del `docker compose up`. Todo comando de estas dos prácticas que use alguna de estas herramientas va con el prefijo `docker compose exec toolbox <comando>`.
 
