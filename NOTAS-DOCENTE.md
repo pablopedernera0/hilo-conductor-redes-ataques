@@ -266,6 +266,51 @@ crecer en 200. Se investigó y reprodujo en vivo:
   README (`crud-stress-test/README.md` y el de la raíz) de no dejar los dos entornos
   corriendo a la vez, con el comando para bajar el que no se esté usando.
 
+## 2026-08-28 — GitHub Codespaces validado como alternativa a PC propia, sin `devcontainer.json`
+
+Pablo probó en vivo si LabEx podía ser una alternativa a Killercoda para las Etapas 3/4 (dado
+el bloqueo de categorías de herramientas del incidente original). Investigación: LabEx es un
+catálogo curado de labs propios (su modelo de "Teams" arma una secuencia de labs *ya
+existentes*, no autoría de un escenario nuevo apuntando a una app propia) — no resuelve el
+caso de uso real de este repo, que necesita infraestructura 100% custom. Se descartó.
+
+En cambio, se probó **GitHub Codespaces** contra `entorno-ataques/`, con una cuenta de GitHub
+sin verificar como estudiante (`pedernera.pablo@terciariourquiza.edu.ar`), simulando la
+experiencia de un estudiante real:
+
+- Primer intento: se armó un `.devcontainer/devcontainer.json` con la feature
+  `docker-in-docker` y un `postCreateCommand` para levantar el stack solo. **El
+  `postCreateCommand` no corrió** (problema conocido de esa feature: el daemon de Docker no
+  siempre está listo cuando corre el comando). Se terminó levantando el stack a mano.
+- **Hallazgo real más importante**: la Codespace de prueba se creó por error sobre `main`
+  (sin ningún `devcontainer.json`) y funcionó igual — Codespaces ya trae Docker instalado por
+  defecto, sin ninguna configuración custom. Se descartó el `devcontainer.json` por completo
+  (era innecesario) y se dejó como único método el arranque manual: `cd entorno-ataques &&
+  docker compose up -d`.
+- **No pidió método de pago** en ningún momento, con una cuenta sin verificar como estudiante
+  de GitHub Education — dato importante para decidir si hace falta la verificación antes de
+  llevar esto a todo el curso.
+- Las tres herramientas restringidas por Killercoda se probaron completas dentro de la
+  Codespace, sin ningún corte ni aviso de la plataforma: `nmap -sV` (mismo resultado ya
+  documentado — no reconoce el puerto 8888 por firma), `hydra` contra `/login` (encontró
+  `admin123`), y `sqlmap` (detección + `--dbs` + `--dump` de la tabla `usuarios`).
+- Paso a paso con el detalle de cada click (botón Code, confiar en la carpeta, pestaña PORTS)
+  documentado en `entorno-ataques/README.md`, sección "Alternativa: GitHub Codespaces".
+
+**Impacto en el Trabajo n°7 de `la-cajonera`** (que no vive en este repo, pero usa el mismo
+patrón): al confirmar que Codespaces funciona sin fricción, se reemplazó Killercoda por
+Codespaces también ahí, aunque el Trabajo n°7 no usa ninguna herramienta restringida — la
+razón fue logística (evitar "no tenía PC propia") más que de política, y Codespaces encaja
+mejor por ser un trabajo centrado en un repositorio de GitHub. Se decidió explícitamente **no
+ofrecer las dos alternativas** (Killercoda + Codespaces) para esa tarea: resuelven el mismo
+problema de la misma forma, mantener las dos solo duplicaría instructivo y soporte. Detalle en
+[[project-hilo-conductor-redes]] (memoria de Claude) y en `TRABAJO7-INSTRUCTIVO-DESPLIEGUE.md`
+de `la-cajonera`.
+
+**Pendiente:** no se probó todavía si Codespaces funciona igual para `crud-stress-test/`
+(Etapa 1 realista, con `ab`) — mismo entorno, no debería haber diferencia, pero no está
+confirmado en vivo como sí lo están `entorno-ataques/` y el Trabajo n°7.
+
 ## Diferencias con la versión de Killercoda
 
 - La app (`crud-python`, branch `feature-login`) corre **dockerizada** acá (`Dockerfile`
