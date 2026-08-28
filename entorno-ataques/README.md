@@ -70,22 +70,42 @@ curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8888/login
 Si el `curl` devuelve `200`, está todo listo. Con eso, arrancá con la Etapa 3 en
 [`crud-ataques-red/intro.md`](../crud-ataques-red/intro.md).
 
-## Alternativa: GitHub Codespaces
+## Alternativa: GitHub Codespaces (sin PC propia)
 
-Si no tenés PC propia con Docker, podés correr este entorno en una Codespace en vez de tu
-máquina — no hace falta instalar nada, ni siquiera Docker: **Code → pestaña Codespaces →
-Create codespace on main**, directo desde este repo en GitHub. Una vez que termine de
-armarse (unos minutos la primera vez), corré en la terminal:
+Si no tenés una computadora propia con Docker, podés correr este entorno en la nube, gratis,
+sin instalar nada — ni siquiera Docker. Confirmado funcionando de punta a punta: `nmap`,
+`hydra` y `sqlmap` corren igual que en una PC propia, sin ningún corte ni aviso de la
+plataforma.
 
-```bash
-cd entorno-ataques
-docker compose up -d
-```
+1. Andá a este repo en GitHub (`https://github.com/pablopedernera0/hilo-conductor-redes-ataques`),
+   con sesión iniciada en tu cuenta de GitHub.
+2. Botón verde **"Code"** (arriba a la derecha, sobre la lista de archivos) → pestaña
+   **"Codespaces"** → **"Create codespace on main"**.
+3. Esperá a que termine de armarse (uno o dos minutos la primera vez). Se abre un VS Code
+   completo en el navegador, con una terminal integrada abajo.
+4. La primera vez que se abre una carpeta nueva, VS Code pregunta si confiás en ella — decile
+   que sí (`Yes, I trust the authors`), es un chequeo estándar sin relación con Codespaces.
+5. En la terminal, parado en la raíz del repo, corré:
+   ```bash
+   cd entorno-ataques
+   docker compose up -d
+   ```
+   Tarda un par de minutos la primera vez (baja las imágenes y arma la app).
+6. Verificá que levantó todo:
+   ```bash
+   docker compose ps
+   curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8888/login
+   ```
+   Si el `curl` devuelve `200`, está todo listo.
+7. Para ver la app o PhpMyAdmin en el navegador: pestaña **"PORTS"** en el panel de abajo de
+   VS Code (al lado de "TERMINAL" — si no aparece, `Ctrl+\`` o `View → Ports`). Ahí deberían
+   listarse el 8888 y el 8080 solos; pasando el mouse por la fila aparece un ícono de globo
+   que abre esa URL en una pestaña nueva.
+8. A partir de acá es exactamente igual que en tu propia PC: los ataques con `docker compose
+   exec toolbox <comando>`, arrancando por [`crud-ataques-red/intro.md`](../crud-ataques-red/intro.md).
 
-El resto (verificación con `docker compose ps` y el `curl`, los ataques con `docker compose
-exec toolbox <comando>`) es exactamente igual que en tu propia PC. Confirmado funcionando de
-punta a punta: `nmap`, `hydra` y `sqlmap` corren sin ningún corte ni aviso de la plataforma —
-Codespaces ya trae Docker instalado por defecto, no hace falta ninguna configuración extra.
+Si volvés más tarde y la Codespace ya no está corriendo, el punto 5 (`cd entorno-ataques &&
+docker compose up -d`) la vuelve a levantar — no hace falta repetir todo desde cero.
 
 ## Credenciales de referencia
 
