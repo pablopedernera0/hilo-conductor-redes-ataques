@@ -70,6 +70,23 @@ curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8888/login
 Si el `curl` devuelve `200`, está todo listo. Con eso, arrancá con la Etapa 3 en
 [`crud-ataques-red/intro.md`](../crud-ataques-red/intro.md).
 
+## Alternativa: GitHub Codespaces
+
+Si no tenés PC propia con Docker, podés correr este entorno en una Codespace en vez de tu
+máquina — no hace falta instalar nada, ni siquiera Docker: **Code → pestaña Codespaces →
+Create codespace on main**, directo desde este repo en GitHub. Una vez que termine de
+armarse (unos minutos la primera vez), corré en la terminal:
+
+```bash
+cd entorno-ataques
+docker compose up -d
+```
+
+El resto (verificación con `docker compose ps` y el `curl`, los ataques con `docker compose
+exec toolbox <comando>`) es exactamente igual que en tu propia PC. Confirmado funcionando de
+punta a punta: `nmap`, `hydra` y `sqlmap` corren sin ningún corte ni aviso de la plataforma —
+Codespaces ya trae Docker instalado por defecto, no hace falta ninguna configuración extra.
+
 ## Credenciales de referencia
 
 | Qué | Usuario | Contraseña |
