@@ -2,7 +2,7 @@ services:
 
   mysql:
     image: mysql:latest
-    restart: always
+    restart: "no"
     environment:
       MYSQL_ROOT_PASSWORD: mysecretpassword
     ports:
@@ -17,7 +17,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
-    restart: always
+    restart: "no"
     ports:
       - "8080:80"
     environment:

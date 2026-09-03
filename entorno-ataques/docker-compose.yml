@@ -2,7 +2,7 @@ services:
 
   mysql:
     image: mysql:latest
-    restart: always
+    restart: "no"
     environment:
       MYSQL_ROOT_PASSWORD: mysecretpassword
       MYSQL_DATABASE: alumnos
@@ -18,7 +18,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
-    restart: always
+    restart: "no"
     ports:
       - "8080:80"
     environment:
@@ -38,7 +38,7 @@ services:
         HTTP_PROXY: ${HTTP_PROXY:-}
         HTTPS_PROXY: ${HTTPS_PROXY:-}
         NO_PROXY: ${NO_PROXY:-}
-    restart: always
+    restart: "no"
     ports:
       - "8888:8888"
     depends_on:
