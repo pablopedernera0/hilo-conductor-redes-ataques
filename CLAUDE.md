@@ -8,6 +8,11 @@ desbloqueo aclara que no pueden diferenciar uso legítimo de malicioso, así que
 una versión liviana de estas herramientas es segura en su plataforma). Detalle completo del
 incidente en `NOTAS-DOCENTE.md`.
 
+**Antes de arrancar, leer también** `~/trabajos/pablo/terciario-urquiza/contexto-docente/CONTEXTO.md`
+(repo privado `pablopedernera0/contexto-docente`) — contexto que cruza este repo con
+`la-cajonera`, `sistema-eidas`, `sistema-eidas-datos` y `pablopedernera0.github.io`
+(cuentas de GitHub, incidente Killercoda, hábito de dos máquinas).
+
 **Este repo reemplaza Killercoda para estas tres etapas**, cada una con su propio entorno:
 
 - `crud-ataques-red/` y `crud-sqli/` comparten el `docker-compose.yml`/`Dockerfile` de
